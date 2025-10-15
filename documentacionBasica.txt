@@ -163,3 +163,16 @@ TripAdvisor API (recomendaciones locales).
 Spotify API (playlists emocionales).
 
 Hosting y despliegue: 
+
+
+RIESGOS Y CONSIDERACIONES INICIALES :
+
+-Limitaciones en el uso de APIs gratuitas (cuotas de peticiones).
+
+-Posible dificultad en la integración de geolocalización y mapas en tiempo real.
+
+-Gestión de datos personales y cumplimiento de la normativa.
+
+-Escalabilidad futura si se incrementa la base de usuarios o las funciones sociales.
+
+-Dependencia de la conexión a Internet para las recomendaciones dinámicas.
