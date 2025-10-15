@@ -134,3 +134,32 @@ Documentación final (13–18 dic.): Redacción de la memoria y manuales técnic
 
 
 ------------------------------------------------------------
+
+
+
+HERRAMIENTAS Y TECNOLOGÍAS
+Frontend:  HTML, CSS3, JavaScript, ME GUSTARIA UTILIZAR LA HERRAMIENTA DE MI TRABAJO QUE SE LLAMA DIVI JUNTO CON CSS. (PREGUNTAR COMO PODEMOS IMPLEMEMNTARV A LSO COMPIS PORQUE ESTA HERRAMIENTA SOLO LA TENGO YO CLAOR ENTONCES NO SE COMO HACERLO PARA PODER REPARTIR TRABAJO )
+
+Backend: 
+
+Base de datos: MSQL
+
+Diseño: Figma (La app con la que se hace el wireframe)
+
+Control de versiones: Git y GitHub.
+
+Integraciones externas:
+
+Leaflet.js + OpenStreetMap (ESAT API PODEMOS HACER EL MAPA INTERACTIVO PEOR HAY QUE MIRARLO) ES UNA LIBRERIA DE JAVASCRIPT 
+SIRVE PARA CREAR MAPAS INTERACTIVOS SIN PAGAR NI DEPENDER DE GOOGLE MAPS TE DEJA AÑADIR MARCADORES EMOJIS, EMOTICONOS  Y OPENSTREETMAP ES LA FUENTE DE LOS MAPAS  
+LEATFLET LA US APOR DEFECTO AIS QUE NO HAY QUE PAGAR
+
+Google Maps API (ubicación y lugares).
+
+OpenWeather API (clima contextual).
+
+TripAdvisor API (recomendaciones locales).
+
+Spotify API (playlists emocionales).
+
+Hosting y despliegue: 
