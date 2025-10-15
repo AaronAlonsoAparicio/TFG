@@ -15,7 +15,7 @@ OBJETIVOS ESPECIFICOS:
 
 -Diseñar una interfaz atractiva y emocionalmente adaptativa.
 
--Integrar un sistema de reconocimiento de emociones mediante selección manual o interfaz visual (ruleta o emojis).
+-Integrar un sistema de reconocimiento de emociones mediante selección manual o interfaz visual (ruleta con emojis).
 
 -Incorporar APIs externas (Google Maps, TripAdvisor, Spotify, OpenWeather, etc.) para obtener recomendaciones reales y geolocalizadas.
 
@@ -24,3 +24,62 @@ OBJETIVOS ESPECIFICOS:
 -Implementar un módulo de comunidad y apoyo emocional con reseñas, retos y mensajes inspiradores.
 
 -Registrar y analizar la evolución emocional del usuario a lo largo del tiempo.
+
+
+
+REQUISITOS Y FUNCIONES PRINCIPALES: 
+FUNCIONALIDADES CLAVE:
+
+-Autenticación y usuarios:
+Registro e inicio de sesión.
+Perfil personalizado con nombre, foto (subida o seleccionada de un catálogo de avatares generados con IA, nanoBanana Gemini), y ubicación.
+
+-Reconocimiento emocional:
+
+Selector animado de emociones (ruleta interactiva con emojis, caritas de colores).
+Fondo de la aplicación dinámico según el estado emocional.
+Frases de bienvenida personalizadas (“Bienvenido de nuevo, [nombre]. ¿Cómo te sientes hoy?”).
+
+-Sistema de recomendación:
+
+Sugerencias de actividades según la emoción actual.
+Panel de recomendaciones visuales con iconos y descripciones breves.Por ejemplo: Alegria --> Cine / Tenis / Bar 
+Integración con APIs externas para localizar lugares o eventos cercanos.
+Mapa interactivo con usuarios visibles (si comparten ubicación) mostrando su emoción actual.
+
+-Seguimiento emocional:
+
+Registro diario del estado de ánimo, fecha y hora.
+Opción de añadir notas personales o reflexiones.
+Historial de emociones y estadísticas del bienestar semanal.
+
+Gamificación:
+
+Sistema de puntos y niveles (“nivel de energía emocional”).
+Logros por participación y constancia (“Primer registro emocional”, “7 días seguidos cuidándote”).
+Recompensas visuales (termómetro de bienestar).
+Panel de progreso y ranking interno.
+
+Comunidad y apoyo social:
+
+Mini chat o foro segmentado por emociones (opcional).
+Muro de retos y logros personales compartidos (“Sonia completó su reto semanal: correr 5 km”).
+Sección de frases motivacionales adaptadas al estado emocional.
+
+
+
+ALCANCE DEL PROYECTO
+
+-Incluye:
+
+Diseño completo de la interfaz (wireframes y prototipos).
+Desarrollo del backend y frontend con conexión a bases de datos y APIs gratuitas.
+Sistema de usuarios y autenticación.
+Módulos de emociones, recomendacion, gamificación y comunidad (chat o muros).
+Integración de geolocalización gratuita y mapas interactivos.
+
+-No incluye:
+
+Aplicación móvil nativa (la versión inicial será web responsive).
+Inteligencia artificial avanzada de análisis emocional automática (solo selector manual en esta fase).
+Integración con redes sociales externas.
