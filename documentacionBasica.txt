@@ -83,3 +83,54 @@ Integración de geolocalización gratuita y mapas interactivos.
 Aplicación móvil nativa (la versión inicial será web responsive).
 Inteligencia artificial avanzada de análisis emocional automática (solo selector manual en esta fase).
 Integración con redes sociales externas.
+
+
+
+
+Planificación general
+Semana	Actividad principal
+1	Análisis de requerimientos y diseño funcional.
+2–3	Diseño de interfaz y experiencia de usuario (wireframes y prototipos).
+4–6	Desarrollo del backend (API, base de datos, autenticación).
+7–8	Desarrollo del frontend (interfaz, integración APIs externas).
+9	Pruebas funcionales y corrección de errores.
+10	Implementación de gamificación y comunidad.
+11	Pruebas finales y optimización.
+12	Documentación técnica y entrega.
+
+
+
+
+
+PREGUNTAR A COMPIS SI LO PONGO DE LA FORMA DE ARRIBA O LA DE ABAJO, ESTOY UN POQUTIO PERDIDA EN ESTE PASO
+
+--------------------------------------------------------------------
+
+
+
+Resumen del flujo de trabajo:
+
+Análisis inicial (21–27 sept.): Revisión de objetivos, definición de alcance y planificación de tareas.
+
+Diseño (28 sept.–5 oct.): Creación de wireframes, esquema de navegación y modelo de base de datos.
+
+Backend (6–20 oct.): Implementación del servidor en PHP, conexión con MySQL, operaciones CRUD y autenticación.
+
+Frontend (21 oct.–5 nov.): Desarrollo de las interfaces principales (login, selector de emociones, lista y mapa de planes) con Bootstrap.
+
+Sistema de recomendación (6–15 nov.): Programación de la lógica y conexión con APIs externas.
+
+Gamificación (16–22 nov.): Implementación de logros, puntos y rankings.
+
+Comunidad (23–30 nov.): Desarrollo de reseñas, valoraciones y comentarios.
+
+Análisis de emociones (1–5 dic.): Creación de reglas que vinculen emociones con tipos de actividades.
+
+Pruebas y ajustes (6–12 dic.): Testeo completo y corrección de errores.
+
+Documentación final (13–18 dic.): Redacción de la memoria y manuales técnicos y de usuario.
+
+
+
+
+------------------------------------------------------------
