@@ -1,0 +1,26 @@
+Planificación general del flujo de desarrollo
+
+MoodPlanned surge para cubrir esa necesidad, proporcionando una experiencia personalizada que combine emociones, localización 
+y actividades afines al estado de animo
+
+
+OBEJITO GENERAL:
+
+Desarrollar una aplicación web que recomiende actividades personalizadas en función del estado emocional del usuario, 
+fomentando su bienestar y la interacción sociaal.
+
+OBJETIVOS ESPECIFICOS:
+
+-Implementar un sistema de registro y autenticación con perfiles personalizados.
+
+-Diseñar una interfaz atractiva y emocionalmente adaptativa.
+
+-Integrar un sistema de reconocimiento de emociones mediante selección manual o interfaz visual (ruleta o emojis).
+
+-Incorporar APIs externas (Google Maps, TripAdvisor, Spotify, OpenWeather, etc.) para obtener recomendaciones reales y geolocalizadas.
+
+-Añadir elementos de gamificación (puntos, logros, rankings, recompensas).
+
+-Implementar un módulo de comunidad y apoyo emocional con reseñas, retos y mensajes inspiradores.
+
+-Registrar y analizar la evolución emocional del usuario a lo largo del tiempo.
