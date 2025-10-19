@@ -1,0 +1,178 @@
+Planificación general del flujo de desarrollo
+
+MoodPlanned surge para cubrir esa necesidad, proporcionando una experiencia personalizada que combine emociones, localización 
+y actividades afines al estado de animo
+
+
+OBEJITO GENERAL:
+
+Desarrollar una aplicación web que recomiende actividades personalizadas en función del estado emocional del usuario, 
+fomentando su bienestar y la interacción sociaal.
+
+OBJETIVOS ESPECIFICOS:
+
+-Implementar un sistema de registro y autenticación con perfiles personalizados.
+
+-Diseñar una interfaz atractiva y emocionalmente adaptativa.
+
+-Integrar un sistema de reconocimiento de emociones mediante selección manual o interfaz visual (ruleta con emojis).
+
+-Incorporar APIs externas (Google Maps, TripAdvisor, Spotify, OpenWeather, etc.) para obtener recomendaciones reales y geolocalizadas.
+
+-Añadir elementos de gamificación (puntos, logros, rankings, recompensas).
+
+-Implementar un módulo de comunidad y apoyo emocional con reseñas, retos y mensajes inspiradores.
+
+-Registrar y analizar la evolución emocional del usuario a lo largo del tiempo.
+
+
+
+REQUISITOS Y FUNCIONES PRINCIPALES: 
+FUNCIONALIDADES CLAVE:
+
+-Autenticación y usuarios:
+Registro e inicio de sesión.
+Perfil personalizado con nombre, foto (subida o seleccionada de un catálogo de avatares generados con IA, nanoBanana Gemini), y ubicación.
+
+-Reconocimiento emocional:
+
+Selector animado de emociones (ruleta interactiva con emojis, caritas de colores).
+Fondo de la aplicación dinámico según el estado emocional.
+Frases de bienvenida personalizadas (“Bienvenido de nuevo, [nombre]. ¿Cómo te sientes hoy?”).
+
+-Sistema de recomendación:
+
+Sugerencias de actividades según la emoción actual.
+Panel de recomendaciones visuales con iconos y descripciones breves.Por ejemplo: Alegria --> Cine / Tenis / Bar 
+Integración con APIs externas para localizar lugares o eventos cercanos.
+Mapa interactivo con usuarios visibles (si comparten ubicación) mostrando su emoción actual.
+
+-Seguimiento emocional:
+
+Registro diario del estado de ánimo, fecha y hora.
+Opción de añadir notas personales o reflexiones.
+Historial de emociones y estadísticas del bienestar semanal.
+
+Gamificación:
+
+Sistema de puntos y niveles (“nivel de energía emocional”).
+Logros por participación y constancia (“Primer registro emocional”, “7 días seguidos cuidándote”).
+Recompensas visuales (termómetro de bienestar).
+Panel de progreso y ranking interno.
+
+Comunidad y apoyo social:
+
+Mini chat o foro segmentado por emociones (opcional).
+Muro de retos y logros personales compartidos (“Sonia completó su reto semanal: correr 5 km”).
+Sección de frases motivacionales adaptadas al estado emocional.
+
+
+
+ALCANCE DEL PROYECTO
+
+-Incluye:
+
+Diseño completo de la interfaz (wireframes y prototipos).
+Desarrollo del backend y frontend con conexión a bases de datos y APIs gratuitas.
+Sistema de usuarios y autenticación.
+Módulos de emociones, recomendacion, gamificación y comunidad (chat o muros).
+Integración de geolocalización gratuita y mapas interactivos.
+
+-No incluye:
+
+Aplicación móvil nativa (la versión inicial será web responsive).
+Inteligencia artificial avanzada de análisis emocional automática (solo selector manual en esta fase).
+Integración con redes sociales externas.
+
+
+
+
+Planificación general
+Semana	Actividad principal
+1	Análisis de requerimientos y diseño funcional.
+2–3	Diseño de interfaz y experiencia de usuario (wireframes y prototipos).
+4–6	Desarrollo del backend (API, base de datos, autenticación).
+7–8	Desarrollo del frontend (interfaz, integración APIs externas).
+9	Pruebas funcionales y corrección de errores.
+10	Implementación de gamificación y comunidad.
+11	Pruebas finales y optimización.
+12	Documentación técnica y entrega.
+
+
+
+
+
+PREGUNTAR A COMPIS SI LO PONGO DE LA FORMA DE ARRIBA O LA DE ABAJO, ESTOY UN POQUTIO PERDIDA EN ESTE PASO
+
+--------------------------------------------------------------------
+
+
+
+Resumen del flujo de trabajo:
+
+Análisis inicial (21–27 sept.): Revisión de objetivos, definición de alcance y planificación de tareas.
+
+Diseño (28 sept.–5 oct.): Creación de wireframes, esquema de navegación y modelo de base de datos.
+
+Backend (6–20 oct.): Implementación del servidor en PHP, conexión con MySQL, operaciones CRUD y autenticación.
+
+Frontend (21 oct.–5 nov.): Desarrollo de las interfaces principales (login, selector de emociones, lista y mapa de planes) con Bootstrap.
+
+Sistema de recomendación (6–15 nov.): Programación de la lógica y conexión con APIs externas.
+
+Gamificación (16–22 nov.): Implementación de logros, puntos y rankings.
+
+Comunidad (23–30 nov.): Desarrollo de reseñas, valoraciones y comentarios.
+
+Análisis de emociones (1–5 dic.): Creación de reglas que vinculen emociones con tipos de actividades.
+
+Pruebas y ajustes (6–12 dic.): Testeo completo y corrección de errores.
+
+Documentación final (13–18 dic.): Redacción de la memoria y manuales técnicos y de usuario.
+
+
+
+
+------------------------------------------------------------
+
+
+
+HERRAMIENTAS Y TECNOLOGÍAS
+Frontend:  HTML, CSS3, JavaScript, ME GUSTARIA UTILIZAR LA HERRAMIENTA DE MI TRABAJO QUE SE LLAMA DIVI JUNTO CON CSS. (PREGUNTAR COMO PODEMOS IMPLEMEMNTARV A LSO COMPIS PORQUE ESTA HERRAMIENTA SOLO LA TENGO YO CLAOR ENTONCES NO SE COMO HACERLO PARA PODER REPARTIR TRABAJO )
+
+Backend: 
+
+Base de datos: MSQL
+
+Diseño: Figma (La app con la que se hace el wireframe)
+
+Control de versiones: Git y GitHub.
+
+Integraciones externas:
+
+Leaflet.js + OpenStreetMap (ESAT API PODEMOS HACER EL MAPA INTERACTIVO PEOR HAY QUE MIRARLO) ES UNA LIBRERIA DE JAVASCRIPT 
+SIRVE PARA CREAR MAPAS INTERACTIVOS SIN PAGAR NI DEPENDER DE GOOGLE MAPS TE DEJA AÑADIR MARCADORES EMOJIS, EMOTICONOS  Y OPENSTREETMAP ES LA FUENTE DE LOS MAPAS  
+LEATFLET LA US APOR DEFECTO AIS QUE NO HAY QUE PAGAR
+
+Google Maps API (ubicación y lugares).
+
+OpenWeather API (clima contextual).
+
+TripAdvisor API (recomendaciones locales).
+
+Spotify API (playlists emocionales).
+
+Hosting y despliegue: 
+
+
+RIESGOS Y CONSIDERACIONES INICIALES :
+
+-Limitaciones en el uso de APIs gratuitas (cuotas de peticiones).
+
+-Posible dificultad en la integración de geolocalización y mapas en tiempo real.
+
+-Gestión de datos personales y cumplimiento de la normativa.
+
+-Escalabilidad futura si se incrementa la base de usuarios o las funciones sociales.
+
+-Dependencia de la conexión a Internet para las recomendaciones dinámicas.
