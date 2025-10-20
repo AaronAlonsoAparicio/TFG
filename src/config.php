@@ -21,7 +21,7 @@ $options = [
 ];
 
 /**
- * Función para obtener una conexión PDO
+ * Función para obtener una conexión PDO a la base de datos
  */
 function getPDOConnection()
 {
