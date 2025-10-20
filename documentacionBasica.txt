@@ -176,3 +176,53 @@ RIESGOS Y CONSIDERACIONES INICIALES :
 -Escalabilidad futura si se incrementa la base de usuarios o las funciones sociales.
 
 -Dependencia de la conexión a Internet para las recomendaciones dinámicas.
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+3.2 Flujo de Usuario
+
+El flujo de usuario define el recorrido que sigue un usuario dentro de la aplicación MoodPlanned, desde el momento en que accede al sistema hasta la realización de las acciones principales, como descubrir nuevos planes o interactuar con la comunidad.
+
+El objetivo del flujo es garantizar una experiencia intuitiva y fluida, permitiendo que el usuario logre su objetivo (encontrar planes personalizados según su estado de ánimo) con el mínimo número de pasos posibles.
+
+Descripción general del flujo
+
+Inicio / Acceso
+El usuario accede a la aplicación a través de la página principal. Si ya dispone de una cuenta, puede iniciar sesión con sus credenciales. En caso contrario, tiene la opción de registrarse mediante un formulario simple que solicita nombre, correo electrónico y contraseña.
+
+Dashboard (pantalla principal)
+Una vez autenticado, el usuario accede al panel principal o dashboard. En esta pantalla se le pregunta cómo se siente, pudiendo seleccionar su estado de ánimo mediante emojis o una escala emocional.
+
+Recomendación de planes
+Tras seleccionar su estado de ánimo, el sistema aplica reglas base que relacionan emociones con categorías de actividades (por ejemplo: si se siente estresado → planes relajantes, si está feliz → actividades sociales).
+A partir de estas reglas y de la información obtenida de la base de datos o de APIs externas (como Google Places), se muestran al usuario los planes más adecuados en forma de tarjetas (cards).
+
+Detalle del plan
+Al seleccionar uno de los planes sugeridos, el usuario accede a una vista detallada donde puede ver información más específica: descripción, ubicación en mapa, valoraciones de otros usuarios e imágenes.
+Desde esta pantalla puede marcar el plan como favorito, valorar o dejar una reseña.
+
+Gamificación y perfil
+Cada interacción dentro del sistema (por ejemplo, valorar un plan o realizar una búsqueda) otorga puntos al usuario.
+En su perfil, puede consultar su progreso, logros desbloqueados y los planes guardados como favoritos.
+
+Comunidad y reseñas
+Además, la aplicación dispone de una sección comunitaria donde los usuarios pueden compartir experiencias, descubrir los planes más recomendados y dejar comentarios.
+
+Cierre de sesión
+Finalmente, el usuario puede cerrar sesión desde la barra de navegación, terminando el flujo de uso principal.
+
+Flujo visual
+
+El flujo de usuario se representa mediante un diagrama de flujo creado con Draw.io, que ilustra de forma clara las diferentes pantallas y decisiones que el usuario toma dentro de la aplicación.
+
+El diagrama refleja las conexiones entre los distintos estados del sistema y permite comprender de forma visual cómo se estructura la navegación principal y los flujos secundarios (registro, perfil, comunidad).
+
+Figura X. Diagrama de flujo de usuario de la aplicación MoodPlanned.
+
+Conclusión
+
+Este diseño de flujo de usuario asegura que la interacción con la aplicación sea simple, lógica y coherente, mejorando la usabilidad y la experiencia general del usuario.
+El flujo se ha diseñado pensando en minimizar la fricción y en mantener una navegación clara, permitiendo que el usuario logre sus objetivos con pocos clics y recibiendo siempre una respuesta inmediata del sistema.
