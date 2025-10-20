@@ -18,7 +18,7 @@ CREATE TABLE plans (
     title VARCHAR(200) NOT NULL,
     description TEXT,
     category VARCHAR(50),
-        lat DECIMAL(10,7),
+    lat DECIMAL(10,7),
     lng DECIMAL(10,7),
     source ENUM('local','google','yelp') DEFAULT 'local',
     external_id VARCHAR(255),
