@@ -6,7 +6,7 @@ session_start();
 /**
  * Configuración de base de datos
  */
-define('DB_HOST', '127.0.0.1');   // Dirección del servidor de base de datos
+define('DB_HOST', 'localhost');   // Dirección del servidor de base de datos
 define('DB_NAME', 'moodplanned'); // Nombre de la base de datos
 define('DB_USER', 'root');        // Usuario de la base de datos
 define('DB_PASS', '');            // Contraseña (vacía si no hay)
