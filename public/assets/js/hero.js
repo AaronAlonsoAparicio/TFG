@@ -1,5 +1,5 @@
-/* Imágenes de ejemplo. Sustituye por rutas locales: "assets/img/..." */
-const IMAGES = [
+/* Imágenes de ejemplo, son imagenes sacadas de unplash que son sin copyright */
+const IMAGENES = [ /* Guardamos una lista de imagenes*/
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
   "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600&q=80",
   "https://images.unsplash.com/photo-1518602164577-1a4a7f1a1a2e?w=1600&q=80",
@@ -8,29 +8,34 @@ const IMAGES = [
   "https://images.unsplash.com/photo-1520975922284-9d06a20b81e8?w=1600&q=80"
 ];
 
-/* Contenedor */
-const stack = document.querySelector('.bg-stack');
-const vw = () => Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-const vh = () => Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+/* Contenedor donde van aparecer las imagenes flotando */
+const contenedorImagenes = document.querySelector('.bg-stack');
+const vw = () => Math.max(document.documentElement.clientWidth, window.innerWidth || 0); /* Una funcion que te dice el ancho de la pantalla en pixeles*/
+const vh = () => Math.max(document.documentElement.clientHeight, window.innerHeight || 0); /* alto de la pantalla en pixeles */
 
-/* Áreas preferidas para no tapar el centro del título */
-const SPOTS = [
+/* Son las zonas de la pantalla donde van aparecer las imagenes para no tapar el titulo */
+const zonas = [
   {x:[0.02,0.30], y:[0.10,0.45]}, // izquierda
   {x:[0.68,0.96], y:[0.15,0.55]}, // derecha
   {x:[0.15,0.40], y:[0.60,0.88]}, // abajo-izq
   {x:[0.60,0.90], y:[0.62,0.90]}  // abajo-der
 ];
 
-function rand(a,b){ return a + Math.random()*(b-a); }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+/* Funciones para calcular numeros aleatorios */
+function rand(a,b){ return a + Math.random()*(b-a); } 
+
+/* Elige un elemento aleatorio de un array, por ejemplo una foto */
+function elementoArray(arr){ 
+  return arr[Math.floor(Math.random() * arr.length)]; 
+}
 
 /* Crea una imagen animada */
-function spawn(){
-  const url = pick(IMAGES);
+function nuevaImagenFlotante(){
+  const url = elementoArray(IMAGENES);
   const el = document.createElement('div');
   el.className = 'float-img';
 
-  const spot = pick(SPOTS);
+  const spot = elementoArray(zonas);
   const W = vw(), H = vh();
 
   // tamaño inicial grande (no sobre todo el título)
@@ -55,16 +60,16 @@ function spawn(){
   el.style.backgroundImage = `url("${url}")`;
 
   el.addEventListener('animationend', ()=> el.remove());
-  stack.appendChild(el);
+  contenedorImagenes.appendChild(el);
 }
 
 /* Ritmo: 1 imagen nueva cada 900ms; límite de 12 simultáneas */
 let timer = null;
 function loop(){
   if (document.hidden) return; // pausa si pestaña inactiva
-  if (stack.childElementCount < 12) spawn();
+  if (contenedorImagenes.childElementCount < 12) nuevaImagenFlotante();
 }
 timer = setInterval(loop, 900);
 
 /* Opcional: precarga ligera para evitar parpadeos */
-IMAGES.forEach(src => { const i=new Image(); i.src=src; });
+IMAGENES.forEach(src => { const i=new Image(); i.src=src; });
