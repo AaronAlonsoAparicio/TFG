@@ -1,35 +1,37 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
-
-// Si el usuario está logueado, redirige al dashboard
 if (!empty($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: dashboard.php'); 
     exit;
 }
 ?>
 <!doctype html>
 <html lang="es">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MoodPlanned</title>
-
-  <!-- Enlazamos SOLO tu CSS -->
-  <link rel="stylesheet" href="assets/css/style.css?v=1">
+<link rel="stylesheet" href="assets/css/style.css?v=12">
 </head>
+<body class="hero-dark">
 
-<body>
-  <div class="hero">
-    <h1>MoodPlanned</h1>
-    <p class="lead">Encuentra planes cercanos según tu estado de ánimo 🌞</p>
+  <!-- Capa de imágenes animadas -->
+  <div class="bg-stack" aria-hidden="true"></div>
 
-    <a href="login.php" class="btn-brand">Iniciar sesión</a>
-    <a href="register.php" class="btn-ghost">Crear cuenta</a>
+  <!-- Título centrado -->
+  <main class="hero-title">
+    <h1 class="brand-title">
+      <span>MOOD</span>
+      <span>PLANNED</span>
+    </h1>
+    <p class="brand-sub">Planes · Amigos · Emociones</p>
 
-    <div class="hr"></div>
-    <small>Desarrollado como Proyecto de Fin de Grado © <?= date('Y') ?></small>
-  </div>
+    <div class="cta-row">
+      <a href="register.php" class="btn-mood">Crear cuenta</a>
+      <a href="login.php" class="btn-mood">Iniciar sesión</a>
+    </div>
+  </main>
+
+  <script src="assets/js/hero.js?v=12"></script>
 </body>
-
 </html>
