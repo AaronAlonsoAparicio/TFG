@@ -1,90 +1,82 @@
-/* ====== Base ====== */
-*{box-sizing:border-box;margin:0;padding:0}
+/* Reset mínimo */
+*{box-sizing:border-box}
 html,body{height:100%}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif;color:#fff;overflow:hidden}
-.hero-dark{background:#0b0b0b}
+body{margin:0; background:#f3f3f3; color:#111; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
 
-/* ====== Título ====== */
-.hero-title{
+/* Hero superior */
+.hero{
   position:relative;
-  z-index:2;
-  height:100dvh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  padding:1rem;
+  padding:clamp(56px,8vw,120px) 4vw 0;
+  overflow:hidden;
 }
-.brand-title{
-  line-height:.9;
-  text-transform:uppercase;
+
+/* Título con imágenes recortadas a las letras */
+.title-clip{
+  margin:0;
+  line-height:0.9;
   font-weight:900;
-  font-size:clamp(3rem,10vw,12rem);
-  letter-spacing:.02em;
-  background:linear-gradient(#fff,#e3e3e3);
+  letter-spacing:-0.02em;
+  text-transform:uppercase;
+  font-size:clamp(48px, 12vw, 220px);
+
+  /* Capas (JS rellena las URLs) */
+  background-repeat:no-repeat, no-repeat, no-repeat;
+  background-size:
+     clamp(220px,28vw,520px) auto,
+     clamp(180px,22vw,420px) auto,
+     clamp(260px,32vw,560px) auto;
+  background-position:
+     6% 35%,
+     55% 15%,
+     35% 70%;
+
   -webkit-background-clip:text;
   background-clip:text;
+  -webkit-text-fill-color:transparent;
   color:transparent;
-  filter:drop-shadow(0 6px 20px rgba(0,0,0,.35));
-}
-.brand-title span{display:block}
-.brand-sub{
-  margin-top:1rem;
-  font-size:1rem;
-  letter-spacing:.1em;
-  opacity:.8;
+
+  text-shadow: rgba(0,0,0,0.12) 0 8px 30px; /* fallback sutil */
 }
 
-/* ====== Botones minimalistas ====== */
-.cta-row{
-  display:flex;
-  gap:1rem;
-  margin-top:2rem;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.btn-mood{
-  display:inline-block;
-  padding:0.9rem 1.6rem;
-  border-radius:10px;
-  font-weight:600;
-  text-decoration:none;
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  color:#fff;
-  background:linear-gradient(135deg, rgba(255,255,255,.25), rgba(255,255,255,.05));
-  border:1.5px solid rgba(255,255,255,.3);
-  backdrop-filter:blur(10px);
-  transition:all .25s ease;
-}
-.btn-mood:hover{
-  background:rgba(255,255,255,.15);
-  color:#000;
-  border-color:rgba(255,255,255,.4);
-}
-
-/* ====== Fondo animado ====== */
-.bg-stack{
-  position:fixed;
-  inset:0;
-  z-index:1;
+/* Vignette/grano leve */
+.hero::after{
+  content:"";
+  position:absolute; inset:0;
   pointer-events:none;
   background:
-    radial-gradient(60% 50% at 50% 50%, rgba(0,0,0,.25) 0%, rgba(0,0,0,.8) 60%, rgba(0,0,0,.95) 100%);
+    radial-gradient(1200px 800px at 80% -200px, rgba(0,0,0,0.06), transparent 60%) ,
+    radial-gradient(800px 600px at 10% 120%, rgba(0,0,0,0.05), transparent 60%);
+  mix-blend-mode:multiply;
+  opacity:.5;
+}
+
+/* Asegura el formulario por encima */
+.container.py-5{position:relative; z-index:1}
+
+/* Móviles */
+@media (max-width:680px){
+  .title-clip{
+    background-position:
+      0% 40%,
+      80% 10%,
+      40% 85%;
+  }
+}
+
+/* Imágenes flotantes (si usas .bg-stack) */
+.bg-stack{
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
 }
 .float-img{
   position:absolute;
-  background-size:cover;
-  background-position:center;
-  border-radius:14px;
-  box-shadow:0 12px 30px rgba(0,0,0,.45);
-  will-change:transform,opacity,filter;
-  animation:drift var(--dur,14s) linear forwards;
-  filter:saturate(.9) brightness(.9);
+  background-size:cover; background-position:center;
+  border-radius:8px;
+  box-shadow:0 10px 40px rgba(0,0,0,.25);
+  transform:translate(var(--tx), var(--ty));
+  animation:float var(--dur) linear forwards;
+  opacity:.9;
 }
-@keyframes drift{
-  0%   {opacity:0;transform:translate(var(--tx,0),var(--ty,0)) scale(1.15);filter:blur(0px);}
-  10%  {opacity:.9;}
-  100% {opacity:0;transform:translate(calc(var(--tx,0)+var(--dx,0)),calc(var(--ty,0)+var(--dy,20px))) scale(.7);filter:blur(10px);}
+@keyframes float{
+  from{ transform:translate(var(--tx), var(--ty)) }
+  to  { transform:translate(calc(var(--tx) + var(--dx)), calc(var(--ty) + var(--dy))) ; opacity:0 }
 }

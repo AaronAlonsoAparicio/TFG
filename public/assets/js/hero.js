@@ -73,3 +73,37 @@ timer = setInterval(loop, 900);
 
 /* Opcional: precarga ligera para evitar parpadeos */
 IMAGENES.forEach(src => { const i=new Image(); i.src=src; });
+/* Rutas a tus imágenes. Cambia por tus ficheros reales. */
+const IMAGENES_HERO = [
+  "/media/hero/iphone-pro.jpg",
+  "/media/hero/portrait-yellow.jpg",
+  "/media/hero/portrait-purple.jpg"
+];
+
+(function(){
+  const title = document.querySelector(".title-clip");
+  if(!title) return;
+
+  /* Inserta las capas solo en el título */
+  title.style.backgroundImage = IMAGENES_HERO.map(u => `url("${u}")`).join(", ");
+
+  /* Parallax ligero dentro del texto */
+  const base = [
+    {x:6,  y:35},
+    {x:55, y:15},
+    {x:35, y:70}
+  ];
+  const amp = [5, 3.5, 7];
+  let w = window.innerWidth, h = Math.max(window.innerHeight,1);
+
+  function move(e){
+    const cx = (e.clientX ?? w/2)/w - 0.5;
+    const cy = (e.clientY ?? h/2)/h - 0.5;
+    const pos = base.map((p,i)=>`${(p.x + cx*amp[i]).toFixed(2)}% ${(p.y + cy*amp[i]).toFixed(2)}%`);
+    title.style.backgroundPosition = pos.join(", ");
+  }
+
+  window.addEventListener("mousemove", move, {passive:true});
+  window.addEventListener("resize", ()=>{ w=innerWidth; h=Math.max(innerHeight,1); });
+  move({clientX:w/2, clientY:h/2});
+})();
