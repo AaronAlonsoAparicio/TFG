@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'created_by' => $user['id']
         ]);
         $success = "Plan creado correctamente 🎉";
-        header("refresh:2;url=dashboard.php");
+        header("refresh:2;url=./dashboard.php");
     }
 }
 ?>

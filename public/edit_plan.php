@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'created_by' => $user['id']
     ]);
     if ($ok) {
-        header("Location: dashboard.php");
+        header("Location:./dashboard.php");
         exit;
     }
 }

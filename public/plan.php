@@ -17,7 +17,7 @@ $isFav = is_favorite($pdo, $user['id'], $plan_id);
 // Manejar envío de reseña
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rating'])) {
     add_review($pdo, $user['id'], $plan_id, $_POST['rating'], $_POST['comment']);
-    header("Location: plan.php?id=" . $plan_id);
+    header("Location:./plan.php?id=" . $plan_id);
     exit;
 }
 ?>

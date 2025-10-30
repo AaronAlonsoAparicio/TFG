@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Regenerar id de sesión por seguridad
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
-        header('Location: /dashboard.php');
+        header('Location:./dashboard.php');
         exit;
     } else {
         $error = "Credenciales incorrectas.";

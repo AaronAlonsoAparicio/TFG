@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_SESSION['user_id'] = $pdo->lastInsertId();
             $success = "Registro completado con éxito. Redirigiendo...";
-            header("refresh:2;url=/dashboard.php");
+            header("refresh:2;url=./dashboard.php");
         }
     }
 }
