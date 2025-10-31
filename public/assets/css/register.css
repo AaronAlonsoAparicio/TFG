@@ -1,0 +1,116 @@
+/* ====== REGISTER PAGE ====== */
+body.bg-light{
+  background:#f6f6f4!important;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:#111!important;
+  overflow:auto!important;
+}
+
+/* --- Hero principal --- */
+body.bg-light .hero{
+  position:relative;
+  height:75vh;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  overflow:hidden;
+}
+
+body.bg-light .title-clip{
+  position:relative;
+  z-index:3;
+  font-size:clamp(2.8rem,8vw,6rem);
+  font-weight:900;
+  line-height:.9;
+  color:#0a0a0a;
+  text-transform:uppercase;
+  letter-spacing:-.03em;
+}
+
+/* --- Collage animado detrás del título --- */
+body.bg-light .hero .collage{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+body.bg-light .hero .collage img{
+  position:absolute;
+  width:clamp(200px,30vw,380px);
+  aspect-ratio:4/3;
+  object-fit:cover;
+  border-radius:6px;
+  box-shadow:0 15px 30px rgba(0,0,0,.2);
+  opacity:.9;
+  filter:grayscale(100%) contrast(1.05) brightness(.95);
+  mix-blend-mode:multiply;
+  animation:floatCard var(--dur,16s) ease-in-out infinite alternate;
+}
+body.bg-light .hero .collage img:nth-child(1){--dur:18s;top:8%;left:30%;transform:rotate(-6deg)}
+body.bg-light .hero .collage img:nth-child(2){--dur:15s;top:35%;left:15%;transform:rotate(7deg)}
+body.bg-light .hero .collage img:nth-child(3){--dur:20s;top:45%;left:45%;transform:rotate(-9deg)}
+
+@keyframes floatCard{
+  0%{transform:translateY(0) rotate(var(--angle,0deg))}
+  50%{transform:translateY(-25px) rotate(calc(var(--angle,0deg)+3deg))}
+  100%{transform:translateY(0) rotate(var(--angle,0deg))}
+}
+
+/* --- Formulario --- */
+body.bg-light .container{
+  margin-top:-8vh;
+  position:relative;
+  z-index:4;
+}
+body.bg-light .card{
+  background:#fff;
+  border:none;
+  border-radius:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+body.bg-light .card-body label{color:#111;font-weight:600}
+body.bg-light .form-control{
+  border:1.5px solid #ddd;
+  border-radius:10px;
+  padding:.75rem 1rem;
+  font-size:1rem;
+}
+body.bg-light .form-control:focus{
+  border-color:#000;
+  box-shadow:0 0 0 2px rgba(0,0,0,.05);
+}
+body.bg-light .btn-primary{
+  background:#0a0a0a;
+  border:none;
+  border-radius:10px;
+  padding:.8rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+body.bg-light .btn-primary:hover{background:#222}
+
+/* --- Galería de avatares --- */
+.avatar-gallery{
+  display:flex;
+  gap:.8rem;
+  justify-content:center;
+  margin:1.5rem 0;
+}
+.avatar-gallery img{
+  width:64px;
+  height:64px;
+  object-fit:cover;
+  border-radius:50%;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:transform .2s,border-color .2s;
+}
+.avatar-gallery img:hover{
+  transform:scale(1.05);
+  border-color:#000;
+}
+.avatar-gallery img.selected{
+  border-color:#000;
+  transform:scale(1.1);
+}
