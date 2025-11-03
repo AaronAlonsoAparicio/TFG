@@ -1,0 +1,115 @@
+/* ====== LOGIN PAGE ====== */
+body.bg-light{
+  background:#000!important;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:#fff!important;
+  overflow:auto!important;
+}
+
+/* --- Hero principal --- */
+body.bg-light .hero{
+  position:relative;
+  height:75vh;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  overflow:hidden;
+  background:#000;
+}
+body.bg-light .title-clip{
+  position:relative;
+  z-index:3;
+  font-size:clamp(2.8rem,8vw,6rem);
+  font-weight:900;
+  line-height:.9;
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:-.03em;
+}
+
+/* --- Collage detrás del título --- */
+body.bg-light .hero .collage{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+body.bg-light .hero .collage img{
+  position:absolute;
+  width:clamp(200px,30vw,380px);
+  aspect-ratio:4/3;
+  object-fit:cover;
+  border-radius:6px;
+  box-shadow:0 15px 30px rgba(0,0,0,.3);
+  opacity:1;
+  filter:none;
+  mix-blend-mode:normal;
+}
+body.bg-light .hero .collage img:nth-child(1){top:8%;left:8%;transform:rotate(-6deg)}
+body.bg-light .hero .collage img:nth-child(2){top:15%;right:12%;transform:rotate(6deg)}
+body.bg-light .hero .collage img:nth-child(3){bottom:10%;left:25%;transform:rotate(-5deg)}
+body.bg-light .hero .collage img:nth-child(4){bottom:12%;right:20%;transform:rotate(7deg)}
+
+/* --- Formulario centrado y ampliado --- */
+body.bg-light .container{
+  margin-top:2rem;
+  min-height:65vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:4;
+}
+body.bg-light .card{
+  background:#fff;
+  border:none;
+  border-radius:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  max-width:700px !important;   /* más ancho */
+  margin:auto;
+}
+body.bg-light .card-body{
+  padding:3rem !important;      /* más espacio interno */
+}
+body.bg-light .card-body label{
+  color:#111;
+  font-weight:700;
+  font-size:1.2rem;             /* texto más grande */
+}
+body.bg-light .form-control{
+  border:1.5px solid #ddd;
+  border-radius:10px;
+  padding:1.2rem 1.4rem;        /* inputs más grandes */
+  font-size:1.2rem;
+}
+body.bg-light .form-control:focus{
+  border-color:#000;
+  box-shadow:0 0 0 2px rgba(0,0,0,.05);
+}
+
+/* --- Botón --- */
+body.bg-light .btn-primary{
+  background:#000!important;
+  color:#fff!important;
+  border:none;
+  border-radius:10px;
+  padding:1rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  cursor:pointer;
+}
+body.bg-light .btn-primary:hover{
+  background:#e5e5e5!important;
+  color:#000!important;
+}
+
+/* --- Texto inferior --- */
+body.bg-light small,
+body.bg-light small a{
+  color:#000!important;
+  font-weight:600;
+}
+body.bg-light small a:hover{
+  text-decoration:underline;
+}
