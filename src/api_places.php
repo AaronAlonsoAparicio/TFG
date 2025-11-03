@@ -8,7 +8,7 @@ function search_places_by_mood($mood, $lat, $lng, $limit = 5) {
         'categories' => $categories,
         'filter'     => "circle:$lng,$lat,5000",
         'limit'      => $limit,
-        'apiKey'     => GEOAPIFY_API_KEY
+        'apiKey'     => "6bf5e1e9fbae4d92aa61c8875ff6f006"
     ]);
 
     $ch = curl_init();
