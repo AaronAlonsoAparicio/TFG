@@ -8,29 +8,30 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title']);
-    $desc = trim($_POST['description']);
-    $cat  = trim($_POST['category']);
+  $title = trim($_POST['title']);
+  $desc = trim($_POST['description']);
+  $cat  = trim($_POST['category']);
 
-    if ($title === '' || $desc === '') {
-        $error = "El título y la descripción son obligatorios.";
-    } else {
-        $id = create_plan($pdo, [
-            'title'       => $title,
-            'description' => $desc,
-            'category'    => $cat,
-            'lat'         => $_POST['lat'] ?? null,
-            'lng'         => $_POST['lng'] ?? null,
-            'image'       => $_POST['image'] ?? null,
-            'created_by'  => $user['id']
-        ]);
-        $success = "Plan creado correctamente 🎉";
-        header("refresh:2;url=./dashboard.php");
-    }
+  if ($title === '' || $desc === '') {
+    $error = "El título y la descripción son obligatorios.";
+  } else {
+    $id = create_plan($pdo, [
+      'title'       => $title,
+      'description' => $desc,
+      'category'    => $cat,
+      'lat'         => $_POST['lat'] ?? null,
+      'lng'         => $_POST['lng'] ?? null,
+      'image'       => $_POST['image'] ?? null,
+      'created_by'  => $user['id']
+    ]);
+    $success = "Plan creado correctamente 🎉";
+    header("refresh:2;url=./dashboard.php");
+  }
 }
 ?>
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -38,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <!-- Sin Bootstrap -->
   <link rel="stylesheet" href="assets/css/create_plan.css?v=1">
 </head>
+
 <body>
   <div class="container">
     <h2>Nuevo Plan</h2>
@@ -60,9 +62,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Categoría</label>
-        <input type="text" name="category" class="form-control" placeholder="ej. ocio, relax, deporte">
+        <label class="form-label">Emoción</label>
+        <select name="category" class="form-control">
+          <option value="" selected disabled>Selecciona una emoción</option>
+          <option value="feliz">Feliz</option>
+          <option value="triste">Triste</option>
+          <option value="enfadado">Enfadado</option>
+          <option value="relajado">Relajado</option>
+          <option value="nervioso">Nervioso</option>
+        </select>
       </div>
+
 
       <div class="row">
         <div class="col-md-6 mb-3">
@@ -84,4 +94,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
   </div>
 </body>
+
 </html>
