@@ -10,22 +10,41 @@ if ($_POST['mood'] ?? false) {
     $msg = "¡Ánimo registrado! +3 puntos";
 }
 ?>
-
 <!DOCTYPE html>
-<html><head><title>Registrar Ánimo</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"></head>
-<body class="bg-light"><div class="container py-4">
-    <a href="dashboard.php" class="btn btn-secondary mb-3">Volver</a>
-    <h3>¿Cómo te sientes?</h3>
-    <?php if ($msg ?? false): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
-    <form method="POST" class="card p-3">
-        <select name="mood" class="form-select mb-3" required>
-            <option value="feliz">Feliz</option>
-            <option value="triste">Triste</option>
-            <option value="relajado">Relajado</option>
-            <option value="enérgico">Enérgico</option>
-            <option value="estresado">Estresado</option>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Registrar Ánimo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/mood_register.css?v=1">
+</head>
+<body class="mp-bg">
+  <div class="container">
+    <a href="dashboard.php" class="btn btn-secondary-ghost">Volver</a>
+    <h2>¿Cómo te sientes?</h2>
+
+    <?php if ($msg ?? false): ?>
+      <div class="notice success"><?= htmlspecialchars($msg) ?></div>
+    <?php endif; ?>
+
+    <form method="POST" class="card">
+      <label class="label" for="mood">Selecciona tu estado</label>
+      <div class="select">
+        <select id="mood" name="mood" required>
+          <option value="feliz">Feliz</option>
+          <option value="triste">Triste</option>
+          <option value="relajado">Relajado</option>
+          <option value="enérgico">Enérgico</option>
+          <option value="estresado">Estresado</option>
         </select>
-        <textarea name="note" class="form-control mb-3" placeholder="Notas (opcional)"></textarea>
-        <button class="btn btn-primary">Registrar</button>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </div>
+
+      <label class="label" for="note">Notas (opcional)</label>
+      <textarea id="note" name="note" placeholder="Escribe algo si quieres..."></textarea>
+
+      <button class="btn btn-primary" type="submit">Registrar</button>
     </form>
-</div></body></html>
+  </div>
+</body>
+</html>
