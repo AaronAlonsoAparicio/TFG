@@ -1,8 +1,8 @@
 /* ====== REGISTER PAGE ====== */
 body.bg-light{
-  background:#f6f6f4!important;
+  background:#000000!important;
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  color:#111!important;
+  color:#ffffff!important;
   overflow:auto!important;
 }
 
@@ -57,7 +57,7 @@ body.bg-light .hero .collage img:nth-child(3){--dur:20s;top:45%;left:45%;transfo
 
 /* --- Formulario centrado y más grande --- */
 body.bg-light .container{
-  margin-top:-8vh;
+  margin-top:1.5rem;            /* espacio entre hero y formulario */
   min-height:65vh;              /* altura para centrar */
   display:flex;
   align-items:center;
@@ -103,6 +103,7 @@ body.bg-light .btn-primary{
   font-weight:800;
   text-transform:uppercase;
   letter-spacing:.05em;
+  cursor:pointer;
 }
 body.bg-light .btn-primary:hover{
   background:#e5e5e5 !important;
@@ -132,4 +133,14 @@ body.bg-light .btn-primary:hover{
 .avatar-gallery img.selected{
   border-color:#000;
   transform:scale(1.1);
+}
+/* --- Texto final debajo del formulario --- */
+body.bg-light small,
+body.bg-light small a {
+  color:#000 !important;
+  font-weight:600;
+}
+
+body.bg-light small a:hover {
+  text-decoration:underline;
 }
