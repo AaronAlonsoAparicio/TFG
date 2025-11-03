@@ -16,35 +16,51 @@ if ($_POST['mood'] ?? false) {
   <meta charset="utf-8">
   <title>Registrar Ánimo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/css/mood_register.css?v=1">
+  <link rel="stylesheet" href="assets/css/mood_register.css?v=2">
 </head>
 <body class="mp-bg">
   <div class="container">
     <a href="dashboard.php" class="btn btn-secondary-ghost">Volver</a>
-    <h2>¿Cómo te sientes?</h2>
+    <h2>¿Cómo te sientes hoy?</h2>
 
     <?php if ($msg ?? false): ?>
       <div class="notice success"><?= htmlspecialchars($msg) ?></div>
     <?php endif; ?>
 
-    <form method="POST" class="card">
-      <label class="label" for="mood">Selecciona tu estado</label>
-      <div class="select">
-        <select id="mood" name="mood" required>
-          <option value="feliz">Feliz</option>
-          <option value="triste">Triste</option>
-          <option value="relajado">Relajado</option>
-          <option value="enérgico">Enérgico</option>
-          <option value="estresado">Estresado</option>
-        </select>
-        <span class="chevron" aria-hidden="true">▾</span>
+    <form method="POST" class="card" id="moodForm">
+      <div class="emojis">
+        <button type="button" class="emoji" data-mood="feliz">😄</button>
+        <button type="button" class="emoji" data-mood="triste">😢</button>
+        <button type="button" class="emoji" data-mood="relajado">😌</button>
+        <button type="button" class="emoji" data-mood="enfadado">😠</button>
+        <button type="button" class="emoji" data-mood="nervioso">😬</button>
       </div>
 
-      <label class="label" for="note">Notas (opcional)</label>
-      <textarea id="note" name="note" placeholder="Escribe algo si quieres..."></textarea>
+      <input type="hidden" name="mood" id="moodInput">
+
+      <textarea id="note" name="note" placeholder="Notas (opcional)"></textarea>
 
       <button class="btn btn-primary" type="submit">Registrar</button>
     </form>
   </div>
+
+  <script>
+    const emojis = document.querySelectorAll('.emoji');
+    const moodInput = document.getElementById('moodInput');
+    emojis.forEach(e => {
+      e.addEventListener('click', () => {
+        emojis.forEach(b => b.classList.remove('active'));
+        e.classList.add('active');
+        moodInput.value = e.dataset.mood;
+      });
+    });
+
+    document.getElementById('moodForm').addEventListener('submit', (ev)=>{
+      if(!moodInput.value){
+        ev.preventDefault();
+        alert("Selecciona un estado de ánimo antes de registrar.");
+      }
+    });
+  </script>
 </body>
 </html>

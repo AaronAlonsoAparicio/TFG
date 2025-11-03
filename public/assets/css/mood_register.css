@@ -1,118 +1,90 @@
-/* ====== Reset mínimo ====== */
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+/* ====== Reset ====== */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
 
 /* ====== Base ====== */
-@font-face {
-  font-family: "InterVar";
-  src: local("Inter"), local("Inter var");
-  font-display: swap;
-}
-:root{
-  --bg:#000;
-  --text:#fff;
-  --muted:#9aa0a6;
-  --card:#fff;
-  --ink:#111;
-  --primary:#111;               /* texto sobre fondos claros */
-  --ring: #6ee7ff;              /* foco accesible */
-  --shadow: 0 14px 32px rgba(0,0,0,.35);
-  --radius:16px;
-}
 body.mp-bg{
-  background:var(--bg);
-  color:var(--text);
-  font-family:"InterVar", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background:#000;
+  color:#fff;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   min-height:100vh;
 }
 
-/* ====== Layout ====== */
 .container{
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3rem 1rem;
+  max-width:1100px;
+  margin:auto;
+  padding:3rem 1rem;
 }
 
-/* ====== Título ====== */
 h2{
   text-align:center;
   font-size:clamp(2.2rem,5vw,3.2rem);
   font-weight:900;
   letter-spacing:-.02em;
-  margin: 1rem 0 1.75rem;
+  margin:1rem 0 1.75rem;
 }
 
-/* ====== Card formulario ====== */
+/* ====== Card ====== */
 .card{
-  background: var(--card);
-  color: var(--ink);
-  border: none;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 2rem;
-  max-width: 680px;
-  margin: 0 auto;
-  display: grid;
-  gap: 1rem;
-}
-
-/* ====== Labels ====== */
-.label{
-  font-size:.9rem;
-  font-weight:600;
-  color:#333;
-}
-
-/* ====== Select estilizado ====== */
-.select{
-  position: relative;
-}
-.select select{
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  padding: .9rem 2.75rem .9rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #f8fafc;
+  background:#fff;
   color:#111;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  border:none;
+  border-radius:16px;
+  box-shadow:0 14px 32px rgba(0,0,0,.35);
+  padding:2rem;
+  max-width:600px;
+  margin:auto;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
 }
-.select .chevron{
-  position: absolute;
-  right: .9rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  color:#6b7280;
-  pointer-events: none;
+
+/* ====== Emojis ====== */
+.emojis{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:1rem;
+  margin-bottom:1rem;
 }
-.select select:hover{ background:#fff; }
-.select select:focus{
-  border-color: var(--ring);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 25%, transparent);
+.emoji{
+  font-size:2.5rem;
+  background:#f1f5f9;
+  border:none;
+  border-radius:50%;
+  width:70px;
+  height:70px;
+  cursor:pointer;
+  transition:transform .2s, background .2s;
+}
+.emoji:hover{
+  transform:scale(1.15);
+  background:#e2e8f0;
+}
+.emoji.active{
+  background:#000;
+  color:#fff;
+  transform:scale(1.25);
 }
 
 /* ====== Textarea ====== */
 textarea{
   width:100%;
-  min-height: 120px;
-  resize: vertical;
-  padding: 1rem;
+  min-height:120px;
+  resize:vertical;
+  padding:1rem;
   border:1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius:12px;
   background:#f8fafc;
   color:#111;
   font-size:1rem;
   outline:none;
-  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  transition:border-color .2s, box-shadow .2s;
 }
-textarea:hover{ background:#fff; }
 textarea:focus{
-  border-color: var(--ring);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 25%, transparent);
+  border-color:#6ee7ff;
+  box-shadow:0 0 0 4px rgba(110,231,255,.25);
 }
 
 /* ====== Botones ====== */
@@ -120,62 +92,49 @@ textarea:focus{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:.5rem;
   border:0;
   cursor:pointer;
-  border-radius: 12px;
-  padding: .9rem 1.2rem;
+  border-radius:12px;
+  padding:.9rem 1.2rem;
   font-weight:700;
   text-decoration:none;
-  transition: transform .05s ease, opacity .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+  transition:transform .05s, opacity .2s, box-shadow .2s, background .2s, color .2s;
 }
-.btn:active{ transform: translateY(1px); }
-
-/* Principal: degradado sutil y hover invertido */
+.btn:active{transform:translateY(1px);}
 .btn-primary{
-  background: linear-gradient(135deg, #111 0%, #333 100%);
+  background:linear-gradient(135deg,#111 0%,#333 100%);
   color:#fff;
-  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 .btn-primary:hover{
-  background: rgba(255,255,255,.92);
+  background:rgba(255,255,255,.92);
   color:#000;
-  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
 }
-
-/* Secundario fantasma para “Volver” sobre fondo oscuro */
 .btn-secondary-ghost{
-  background: transparent;
-  color: #e5e7eb;
-  border: 1px solid rgba(229,231,235,.25);
-  padding: .6rem .9rem;
-  margin-bottom: 1.25rem;
-  border-radius: 10px;
+  background:transparent;
+  color:#e5e7eb;
+  border:1px solid rgba(229,231,235,.25);
+  padding:.6rem .9rem;
+  margin-bottom:1.25rem;
+  border-radius:10px;
 }
 .btn-secondary-ghost:hover{
-  border-color: #e5e7eb;
+  border-color:#e5e7eb;
   color:#fff;
 }
 
 /* ====== Avisos ====== */
 .notice{
-  max-width: 680px;
-  margin: 0 auto 1rem;
-  padding: .9rem 1rem;
-  border-radius: 12px;
+  max-width:600px;
+  margin:0 auto 1rem;
+  padding:.9rem 1rem;
+  border-radius:12px;
   font-weight:600;
   border:1px solid transparent;
 }
 .notice.success{
-  background: #ecfdf5;
-  color: #065f46;
-  border-color: #a7f3d0;
-}
-
-/* ====== Accesibilidad: focus visible para enlaces/botones ====== */
-a:focus-visible,
-button:focus-visible{
-  outline: none;
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 25%, transparent);
-  border-radius: 12px;
+  background:#ecfdf5;
+  color:#065f46;
+  border-color:#a7f3d0;
 }
