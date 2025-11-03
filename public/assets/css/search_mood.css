@@ -1,0 +1,300 @@
+/* ====== BASE NEGRO + TIPOGRAFÍA (integrado) ====== */
+html, body { height: 100%; }
+body, body.bg-light{
+  background:#000!important;
+  color:#fff!important;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;
+  margin:0;
+}
+
+/* Contenedor general (si existiera) */
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:3rem 1rem;
+}
+
+/* Título global */
+h2{
+  text-align:center;
+  font-size:clamp(2.2rem,5vw,3.2rem);
+  font-weight:900;
+  letter-spacing:-.02em;
+  margin:1rem 0 1.75rem;
+  color:#fff;
+}
+
+/* Tarjeta de formulario genérica (si la usas) */
+form.card{
+  background:#fff;
+  color:#111;
+  border:none;
+  border-radius:16px;
+  box-shadow:0 14px 32px rgba(0,0,0,.35);
+  padding:2rem!important;
+  max-width:900px;
+  margin:0 auto 2rem;
+  position:relative;
+}
+
+/* “Caritas” decorativas en form.card (no afecta a la UI funcional mp-*) */
+form.card::before{
+  content:"😟   😕   😐   🙂   😄";
+  position:relative;
+  display:block;
+  text-align:center;
+  font-size:3rem;
+  line-height:1;
+  letter-spacing:.25rem;
+  opacity:.9;
+  margin:-.25rem 0 1.25rem;
+}
+
+/* Campos básicos de formulario */
+form.card .form-select,
+form.card .form-control{
+  border:1.6px solid #d6d6d6;
+  border-radius:12px;
+  padding:1rem 1.2rem;
+  font-size:1.05rem;
+  transition:border-color .2s, box-shadow .2s;
+}
+form.card .form-select:focus,
+form.card .form-control:focus{
+  border-color:#000;
+  box-shadow:0 0 0 3px rgba(0,0,0,.07);
+  outline:none;
+}
+
+/* Botón primario (reutilizable) */
+.btn-primary{
+  background:#000!important;
+  color:#fff!important;
+  border:none;
+  border-radius:12px;
+  padding:1rem 1.25rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  transition:background .25s,color .25s,transform .1s;
+  cursor:pointer;
+}
+.btn-primary:hover{
+  background:#e6e6e6!important;
+  color:#000!important;
+}
+.btn-primary:active{
+  transform:translateY(1px);
+}
+
+/* Botón secundario (Volver) si existe esa clase */
+.btn-secondary{
+  background:#e6e6e6!important;
+  color:#000!important;
+  border:none;
+  border-radius:10px;
+  padding:.75rem 1.1rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  margin-bottom:1rem;
+  cursor:pointer;
+}
+.btn-secondary:hover{
+  background:#fff!important;
+}
+
+/* Tarjetas de resultados genéricas si usas .card.h-100 */
+.card.h-100{
+  background:#fff;
+  color:#111;
+  border:none;
+  border-radius:14px;
+  box-shadow:0 10px 22px rgba(0,0,0,.25);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.card.h-100:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(0,0,0,.35);
+}
+.card.h-100 h5{
+  font-weight:800;
+  font-size:1.1rem;
+}
+.card.h-100 p{
+  color:#555;
+  font-size:.96rem;
+}
+
+/* Botón Importar dentro de .card */
+.card .btn-success{
+  background:#000!important;
+  color:#fff!important;
+  border:none;
+  border-radius:10px;
+  padding:.7rem;
+  font-weight:800;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.card .btn-success:hover{
+  background:#e6e6e6!important;
+  color:#000!important;
+}
+
+/* Alertas */
+.alert{
+  border:none;
+  border-radius:12px;
+  font-weight:700;
+}
+.alert-success{ background:#c9f4c9; color:#0a5f0a; }
+.alert-danger{  background:#ffd6d6; color:#9e0000; }
+
+/* Responsive fino para form.card decorativo */
+@media (max-width: 768px){
+  form.card::before{ font-size:2.6rem; letter-spacing:.2rem; }
+  form.card{ padding:1.5rem!important; }
+}
+
+/* ====== UI FUNCIONAL DE EMOCIONES (mp-*) ====== */
+
+/* Layout principal centrado (sin depender de .container) */
+.mp-root{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+.mp-wrap{
+  width:min(960px, 94vw);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* Enlace Volver alternativo */
+.back-link{
+  color:#fff;
+  text-decoration:none;
+  opacity:.85;
+  transition:opacity .15s ease;
+}
+.back-link:hover{opacity:1}
+.page-title{margin:0}
+
+/* Alertas en esta vista */
+.alert{
+  margin:0;
+}
+
+/* Accesibilidad */
+.visually-hidden{
+  position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+/* Bloque UI */
+.mp-mood-ui{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  text-align:center;
+}
+
+/* Ocultar radios */
+.mp-mood-ui input[type="radio"]{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* Picker de 5 emojis */
+.mp-mood-picker{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+/* Botones emoji funcionales */
+.mp-mood{
+  width:78px; height:78px;
+  display:grid; place-items:center;
+  font-size:2rem; line-height:1;
+  background:#fff; color:#111;
+  border-radius:16px;
+  box-shadow:0 10px 22px rgba(0,0,0,.35);
+  cursor:pointer; user-select:none;
+  transition:transform .12s ease, box-shadow .18s ease, background .2s ease, color .2s ease, outline-color .2s ease;
+}
+.mp-mood:active{ transform:translateY(1px); }
+.mp-mood:hover{ box-shadow:0 14px 30px rgba(0,0,0,.45); }
+
+/* Estado activo (sin JS) */
+#mp-sad:checked     ~ .mp-mood-picker label[for="mp-sad"],
+#mp-happy:checked   ~ .mp-mood-picker label[for="mp-happy"],
+#mp-angry:checked   ~ .mp-mood-picker label[for="mp-angry"],
+#mp-calm:checked    ~ .mp-mood-picker label[for="mp-calm"],
+#mp-nervous:checked ~ .mp-mood-picker label[for="mp-nervous"]{
+  background:#000; color:#fff;
+  outline:3px solid #fff; outline-offset:3px;
+}
+
+/* Paneles de frases (5) */
+.mp-mood-panels{ width:min(720px, 92vw); }
+.mp-panel{
+  display:none;
+  background:#fff; color:#111;
+  border-radius:16px;
+  padding:20px 24px;
+  text-align:left;
+  box-shadow:0 12px 28px rgba(0,0,0,.35);
+}
+.mp-panel li{ margin:.25rem 0; }
+
+/* Mostrar panel del radio activo */
+#mp-sad:checked     ~ .mp-mood-panels .mp-panel[data-mood="mp-sad"],
+#mp-happy:checked   ~ .mp-mood-panels .mp-panel[data-mood="mp-happy"],
+#mp-angry:checked   ~ .mp-mood-panels .mp-panel[data-mood="mp-angry"],
+#mp-calm:checked    ~ .mp-mood-panels .mp-panel[data-mood="mp-calm"],
+#mp-nervous:checked ~ .mp-mood-panels .mp-panel[data-mood="mp-nervous"]{
+  display:block;
+}
+
+/* ====== Tarjetas de lugares (sin Bootstrap, para $places) ====== */
+.places{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+.places-title{ margin:0; }
+
+.places-grid{
+  display:grid;
+  grid-template-columns:repeat( auto-fit, minmax(260px, 1fr) );
+  gap:16px;
+}
+.place-card{
+  background:#111; color:#eee;
+  border-radius:14px; overflow:hidden;
+  box-shadow:0 10px 22px rgba(0,0,0,.45);
+  display:flex; flex-direction:column; min-height:100%;
+}
+.place-img{
+  width:100%; height:150px; object-fit:cover; display:block; background:#222;
+}
+.place-body{ display:flex; flex-direction:column; gap:10px; padding:14px 16px; }
+.place-title{ margin:0; }
+.place-desc{ margin:0; opacity:.9; }
+
+/* Botón primario local (si no usas .btn-primary) */
+.place-body .btn-primary{
+  border-radius:10px; padding:10px 14px; width:100%;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+/* Responsive */
+@media (max-width:560px){
+  .mp-mood{ width:64px; height:64px; font-size:1.7rem; border-radius:14px; }
+  .mp-panel{ padding:16px 18px; border-radius:14px; }
+}
