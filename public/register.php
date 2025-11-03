@@ -55,9 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <section class="hero">
   <div class="collage">
-    <img src="assets/img/register1.jpg" alt="">
-    <img src="assets/img/register2.jpg" alt="">
-    <img src="assets/img/register3.jpg" alt="">
+    <img src="https://plus.unsplash.com/premium_photo-1685366454862-7f1b2d957fb1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
+    <img src="https://plus.unsplash.com/premium_photo-1661762437859-c41fa943637c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
+    <img src="https://plus.unsplash.com/premium_photo-1683121126477-17ef068309bc?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
+     <img src="https://images.unsplash.com/photo-1658893804494-b5c43a641c55?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
+
   </div>
 
   <h1 class="title-clip">Tu mood manda-<br>crea tu cuenta aquí</h1>
@@ -109,9 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <div class="avatar-gallery">
-  <img src="assets/img/avatars/1.png" alt="">
-  <img src="assets/img/avatars/2.png" alt="">
-  <img src="assets/img/avatars/3.png" alt="">
+<img src="https://plus.unsplash.com/premium_photo-1738550163830-07bccfea3805?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1295" alt="">
+<img src="https://plus.unsplash.com/premium_photo-1738449258803-ffd12c905fd6?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D&auto=format&fit=crop&q=80&w=1332" alt="">
+<img src="https://plus.unsplash.com/premium_photo-1738449258706-74c1dc94b988?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1332" alt="">
 </div>
 
 <script>
