@@ -1,0 +1,152 @@
+/* ====== RESET CRÍTICO ====== */
+*,
+*::before,
+*::after{ box-sizing:border-box; }
+
+/* ====== BASE ARENA + TIPOGRAFÍA ====== */
+html, body { height: 100%; }
+body, body.bg-light{
+  background:#f4e7d0;
+  color:#3b3b3b;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;
+  margin:0;
+}
+
+/* ====== CONTENEDOR ====== */
+.container{
+  max-width:1100px;
+  margin-inline:auto;
+  padding:3rem 1rem;
+}
+
+/* ====== TÍTULO ====== */
+h2{
+  text-align:center;
+  font-size:clamp(2.2rem,5vw,3.2rem);
+  font-weight:900;
+  letter-spacing:-.02em;
+  margin:1rem 0 1.75rem;
+  color:#3b3b3b;
+}
+
+/* ====== ALERTAS ====== */
+.alert{
+  border:none;
+  border-radius:12px;
+  font-weight:700;
+  padding:1rem 1.1rem;
+  margin:0 0 1rem 0;
+}
+.alert-success{ background:#f1f8f4; color:#276749; }
+.alert-danger{  background:#ffe6e6; color:#8b0000; }
+
+/* ====== FORMULARIO ====== */
+form{
+  background:#fffdf9;
+  color:#111;
+  border:none;
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(0,0,0,.15);
+  padding:2rem;
+  max-width:840px;
+  margin:0 auto;
+}
+
+/* Etiquetas */
+.form-label{
+  display:block;
+  font-size:.92rem;
+  font-weight:700;
+  color:#3f3f3f;
+  margin:0 0 .5rem 2px;
+}
+
+/* Campos (correcciones de desbordamiento) */
+.form-control{
+  display:block;
+  width:100%;
+  max-width:100%;
+  border:1.6px solid #e2d8c4;
+  border-radius:12px;
+  padding:1rem 1.1rem;
+  font-size:1rem;
+  background:#faf7f1;
+  color:#111;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+}
+.form-control:focus{
+  border-color:#c7a976;
+  box-shadow:0 0 0 4px rgba(199,169,118,.22);
+  background:#fff;
+}
+
+/* Textarea */
+textarea.form-control{
+  min-height:140px;
+  resize:vertical;
+}
+
+/* Spacing helpers */
+.mb-3{ margin-bottom:1rem; }
+
+/* ====== GRID SIN BOOTSTRAP ====== */
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  margin-left:0; margin-right:0;
+}
+.col-md-6{
+  flex:1 1 100%;
+  min-width:0;           /* evita roturas en inputs largos */
+}
+@media (min-width: 768px){
+  .col-md-6{
+    flex:0 0 calc(50% - .5rem);
+    max-width:calc(50% - .5rem);
+  }
+}
+
+/* ====== BOTONES ====== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+  border:0;
+  cursor:pointer;
+  border-radius:12px;
+  padding:1rem 1.25rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  text-decoration:none;
+  transition:background .25s,color .25s,transform .1s, box-shadow .25s;
+}
+.btn:active{ transform:translateY(1px); }
+
+.btn-primary{
+  background:linear-gradient(135deg,#c4a469 0%,#d8bb86 100%);
+  color:#fff;
+  box-shadow:0 8px 20px rgba(0,0,0,.20);
+}
+.btn-primary:hover{
+  background:#b7945a;
+  color:#fff;
+}
+
+/* Utilidad ancho completo */
+.w-100{ width:100%; }
+
+/* ====== PLACEHOLDERS ====== */
+::placeholder{ color:#8a8a8a; opacity:.9; }
+
+/* ====== ACCESIBILIDAD FOCUS ====== */
+button:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 4px rgba(199,169,118,.35);
+}
