@@ -1,12 +1,13 @@
 /* Imágenes de ejemplo, son imagenes sacadas de unplash que son sin copyright */
-const IMAGENES = [ /* Guardamos una lista de imagenes*/
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
-  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600&q=80",
-  "https://images.unsplash.com/photo-1518602164577-1a4a7f1a1a2e?w=1600&q=80",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600&q=80",
-  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600&q=80",
-  "https://images.unsplash.com/photo-1520975922284-9d06a20b81e8?w=1600&q=80"
+const IMAGENES = [
+  "https://plus.unsplash.com/premium_photo-1682096504254-4b6400241e91?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1170",
+  "https://images.unsplash.com/photo-1563000215-e31a8ddcb2d0?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1156",
+  "https://plus.unsplash.com/premium_photo-1723507238503-6b2af04ae4e6?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1170",
+  "https://images.unsplash.com/photo-1649134296132-56606326c566?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1332",
+  "https://images.unsplash.com/photo-1640461470346-c8b56497850a?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1074",
+  "https://images.unsplash.com/photo-1754248332986-60fa90d7d958?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1170"
 ];
+
 
 /* Contenedor donde van aparecer las imagenes flotando */
 const contenedorImagenes = document.querySelector('.bg-stack');

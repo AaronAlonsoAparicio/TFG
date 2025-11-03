@@ -32,6 +32,6 @@ if (!empty($_SESSION['user_id'])) {
     </div>
   </main>
 
-  <script src="assets/js/hero.js?v=12"></script>
+  <script src="assets/js/hero.js"></script>
 </body>
 </html>
