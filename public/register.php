@@ -46,19 +46,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Registro - MoodPlanned</title>
-<link rel="stylesheet" href="/assets/css/register.css?v=7">
-
+  
+  <!-- Ruta corregida: quitar la barra inicial -->
+  <link rel="stylesheet" href="assets/css/register.css?v=7">
 </head>
-
-
 
 <body class="bg-light">
 
 <section class="hero">
   <div class="collage">
-    <img src="/assets/img/register1.jpg" alt="">
-    <img src="/assets/img/register2.jpg" alt="">
-    <img src="/assets/img/register3.jpg" alt="">
+    <img src="assets/img/register1.jpg" alt="">
+    <img src="assets/img/register2.jpg" alt="">
+    <img src="assets/img/register3.jpg" alt="">
   </div>
 
   <h1 class="title-clip">Tu mood manda-<br>crea tu cuenta aquí</h1>
@@ -110,9 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <div class="avatar-gallery">
-  <img src="/assets/img/avatars/1.png" alt="">
-  <img src="/assets/img/avatars/2.png" alt="">
-  <img src="/assets/img/avatars/3.png" alt="">
+  <img src="assets/img/avatars/1.png" alt="">
+  <img src="assets/img/avatars/2.png" alt="">
+  <img src="assets/img/avatars/3.png" alt="">
 </div>
 
 <script>
