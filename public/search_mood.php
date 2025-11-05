@@ -287,13 +287,15 @@ if ($_POST['mood'] ?? false) {
       }
 
       labels.forEach(l=>{
-        l.addEventListener('click',()=>{
-          const mood = l.dataset.mood;
-          inputMood.value = mood;
-          spawnImagesForMood(mood);
-        });
-      });
-    })();
+  l.addEventListener('click',()=>{
+    const mood = l.dataset.mood;
+    inputMood.value = mood;
+    spawnImagesForMood(mood);
+
+    // Enviar el formulario automáticamente
+    document.getElementById('geo-form').submit();
+  });
+});
   </script>
 </body>
 </html>
