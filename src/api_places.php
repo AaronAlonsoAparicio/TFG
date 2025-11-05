@@ -10,7 +10,7 @@ function search_places_by_mood(string $mood, ?float $lat = null, ?float $lng = n
     $mood = trim(strtolower($mood));
 
     // Usa LIKE con comodines para evitar fallos por coincidencia exacta
-    $sql = PLANES_BY_CATEGORY . " LIMIT :limit";
+    $sql = PLANES_POR_ESTADO . " LIMIT :limit";
     $stmt = $pdo->prepare($sql);
 
     // bindValue para el limit (integer) y ejecutar con comodín en category
