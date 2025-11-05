@@ -4,9 +4,8 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/../public/constantes.php';
 
 function search_places_by_mood(string $mood, float $lat, float $lng): array {
-    global $pdo; // usa la conexión ya creada
+    global $pdo;
 
-    // Escoger la constante correcta según el estado de ánimo
     switch ($mood) {
         case 'feliz':
             $sql = PLANES_FELIZ;
@@ -24,13 +23,14 @@ function search_places_by_mood(string $mood, float $lat, float $lng): array {
             $sql = PLANES_NERVIOSO;
             break;
         default:
-            return []; // si no hay coincidencia, devolvemos vacío
+            return [];
     }
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$mood]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 function import_place_as_plan($pdo, $place, $user_id) {
     $stmt = $pdo->prepare("
