@@ -1,6 +1,7 @@
 <?php
 // src/api_places.php
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/constantes.php';
 
 
 function search_places_by_mood(string $mood, float $lat, float $lng): array {
