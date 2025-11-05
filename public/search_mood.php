@@ -26,10 +26,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['mood'])) {
     .mood{ width:72px; height:72px; display:grid; place-items:center; font-size:28px; background:#fff; border-radius:12px; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.08); }
     .mood:hover{ transform:scale(1.06); }
     .results{ margin-top:18px; display:grid; gap:12px; }
-    .card{ background:#fff; padding:12px 14px; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,.06); }
+    .card{ background:#fff; padding:12px 14px; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,.06); position:relative; }
     .card h4{ margin:0 0 6px; }
     .meta{ font-size:12px; color:#666; margin-bottom:6px; }
     .noresults{ color:#666; }
+
+    /* Botón Ver más */
+    .btn-details {
+      margin-top: 8px;
+      background: #d9c49b;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-details:hover {
+      background: #c7b182;
+    }
+
+    /* Popup (modal) */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.5);
+      z-index: 999;
+    }
+    .modal.hidden { display: none; }
+
+    .modal-content {
+      background: #fff;
+      color: #333;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.3);
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      text-align: left;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #555;
+    }
   </style>
 </head>
 <body>
@@ -60,10 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['mood'])) {
         <article class="card">
           <div class="meta"><?= htmlspecialchars($p['category']) ?></div>
           <h4><?= htmlspecialchars($p['title']) ?></h4>
-          <p><?= nl2br(htmlspecialchars($p['description'])) ?></p>
           <?php if (!empty($p['image'])): ?>
             <img src="<?= htmlspecialchars($p['image']) ?>" alt="" style="max-width:160px;margin-top:8px;border-radius:8px;">
           <?php endif; ?>
+          <!-- Botón para ver más detalles -->
+          <button type="button" class="btn-details"
+                  data-title="<?= htmlspecialchars($p['title']) ?>"
+                  data-description="<?= htmlspecialchars($p['description']) ?>">
+            Ver más detalles
+          </button>
         </article>
       <?php endforeach; ?>
     <?php else: ?>
@@ -75,25 +130,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['mood'])) {
     <?php endif; ?>
   </div>
 
+  <!-- Popup de detalles -->
+  <div id="details-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 id="modal-title"></h3>
+      <p id="modal-description"></p>
+    </div>
+  </div>
+
 <script>
-  // rellenar coordenadas si el navegador permite geolocalización
+  // Geolocalización
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(p => {
       document.getElementById('lat').value = p.coords.latitude;
       document.getElementById('lng').value = p.coords.longitude;
-    }, ()=>{/* permiso denegado o error: se mantienen los valores vacíos */});
+    });
   }
 
-  // comportamiento: clic en emoji -> poner mood en input y submit del formulario
+  // Click en las caritas
   document.querySelectorAll('.mood').forEach(el => {
     el.addEventListener('click', () => {
       const mood = el.getAttribute('data-mood');
       document.getElementById('geo-mood').value = mood;
-      // Opcional: feedback visual inmediato
       el.animate([{ transform: 'scale(1.08)' }, { transform:'scale(1)' }], { duration:180 });
-
-      // enviar el formulario
       document.getElementById('geo-form').submit();
+    });
+  });
+
+  // Popup de detalles
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('details-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-description');
+    const closeBtn = modal.querySelector('.modal-close');
+
+    document.querySelectorAll('.btn-details').forEach(btn => {
+      btn.addEventListener('click', () => {
+        modalTitle.textContent = btn.dataset.title;
+        modalDesc.textContent = btn.dataset.description;
+        modal.classList.remove('hidden');
+      });
+    });
+
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.classList.add('hidden');
     });
   });
 </script>
