@@ -2,46 +2,34 @@
 // src/api_places.php
 require_once __DIR__ . '/config.php';
 
-function search_places_by_mood($mood, $lat, $lng, $limit = 5) {
-    $categories = mood_to_categories($mood);
-    $url = GEOAPIFY_BASE_URL . '?' . http_build_query([
-        'categories' => $categories,
-        'filter'     => "circle:$lng,$lat,5000",
-        'limit'      => $limit,
-        'apiKey'     => "6bf5e1e9fbae4d92aa61c8875ff6f006"
-    ]);
 
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 10
-    ]);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+function search_places_by_mood(string $mood, float $lat, float $lng): array {
+    global $pdo; // usa la conexión ya creada
 
-    if ($httpCode !== 200) return [];
-
-    $data = json_decode($response, true);
-    $features = $data['features'] ?? [];
-
-    $places = [];
-    foreach ($features as $f) {
-        $p = $f['properties'];
-        $places[] = [
-            'title'       => $p['name'] ?? 'Sin nombre',
-            'description' => $p['formatted'] ?? 'Sin dirección',
-            'category'    => $mood,
-            'lat'         => $f['geometry']['coordinates'][1],
-            'lng'         => $f['geometry']['coordinates'][0],
-            'image'       => $p['image'] ?? null,
-            'external_id' => $p['place_id'] ?? null,
-            'source'      => 'geoapify'
-        ];
+    // Escoger la constante correcta según el estado de ánimo
+    switch ($mood) {
+        case 'feliz':
+            $sql = PLANES_FELIZ;
+            break;
+        case 'triste':
+            $sql = PLANES_TRISTE;
+            break;
+        case 'enfadado':
+            $sql = PLANES_ENFADADO;
+            break;
+        case 'relajado':
+            $sql = PLANES_RELAJADO;
+            break;
+        case 'nervioso':
+            $sql = PLANES_NERVIOSO;
+            break;
+        default:
+            return []; // si no hay coincidencia, devolvemos vacío
     }
-    return $places;
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$mood]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function import_place_as_plan($pdo, $place, $user_id) {
