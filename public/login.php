@@ -1,54 +1,38 @@
-<?php
-require_once __DIR__ . '/../src/config.php';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    $stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-    if ($user && password_verify($password, $user['password_hash'])) {
-        // Regenerar id de sesión por seguridad
-        session_regenerate_id(true);
-        $_SESSION['user_id'] = $user['id'];
-        header('Location:./dashboard.php');
-        exit;
-    } else {
-        $error = "Credenciales incorrectas.";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/login.css?v=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/register.css">
     <title>MoodPlanned</title>
 </head>
+
 <body class="bg-light">
+    <div class="container-fluid py-5">
+        <div class="row align-items-center">
 
-<section class="hero">
-  <div class="collage">
-    <img src="https://images.unsplash.com/photo-1658893804494-b5c43a641c55?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
-    <img src="https://images.unsplash.com/photo-1735761013351-9eecd120e305?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687" alt="">
-    <img src="https://plus.unsplash.com/premium_photo-1673549535545-c30acf105478?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
-    <img src="https://plus.unsplash.com/premium_photo-1679334171493-a5ed219782b1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687" alt="">
+            <!-- ===== CONTENEDOR IZQUIERDO: HERO, TEXTO Y FOTOS ===== -->
+            <div class="col-md-6 mb-4 mb-md-0">
+                <section class="hero">
+                    <div class="collage">
+                        <img src="https://images.unsplash.com/photo-1658893804494-b5c43a641c55?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
+                        <img src="https://images.unsplash.com/photo-1735761013351-9eecd120e305?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687" alt="">
+                        <img src="https://plus.unsplash.com/premium_photo-1673549535545-c30acf105478?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170" alt="">
+                        <img src="https://plus.unsplash.com/premium_photo-1679334171493-a5ed219782b1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687" alt="">
+                    </div>
 
-  </div>
+                    <h1 class="title-clip">Iniciar Sesion</h1>
+                </section>
+            </div>
 
-  <h1 class="title-clip">Iniciar Sesion</h1>
-</section>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
+            <!-- ===== CONTENEDOR DERECHO: FORMULARIO Y AVATARES ===== -->
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body"> 
-                        <?php if (isset($error)): ?>
-                            <div class="alert alert-danger"><?= $error ?></div>
-                        <?php endif; ?>
+                <div class="card shadow-lg border-0 rounded-4 mx-auto" style="max-width: 460px;">
+                    <div class="card-body p-4">
+
                         <form method="POST">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
@@ -60,10 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <button type="submit" class="btn btn-primary">Iniciar sesión</button>
                         </form>
+
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
 </body>
+
 </html>
