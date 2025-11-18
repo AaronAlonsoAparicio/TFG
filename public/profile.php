@@ -162,8 +162,8 @@
             <button type="button" class="btn btn-edit-perfil me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="bi bi-pencil-square"></i> Editar perfil
             </button>
-            <button class="btn btn-outline-danger btn-logout-perfil"><i class="bi bi-box-arrow-right"></i> Cerrar
-                sesión</button>
+            <a href="./index.php"><button class="btn btn-outline-danger btn-logout-perfil"><i class="bi bi-box-arrow-right"></i> Cerrar
+                sesión</button></a>
         </div>
     </div>
 
