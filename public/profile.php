@@ -157,7 +157,7 @@
     </div>
     <div class="profile-info">
         <h3>Aaron</h3>
-        <p>@aaronalonso · Amante de los viajes y las emociones</p>
+        <p>· Amante de los viajes y las emociones ·</p>
         <div class="mt-3">
             <button type="button" class="btn btn-edit-perfil me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="bi bi-pencil-square"></i> Editar perfil
