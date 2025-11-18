@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_email'] = $user['email'];
 
         // REDIRECCIÓN AL DASHBOARD
-        header('Location: ./dashboard.php');
+        header('Location: ./index_2.php');
         exit;
     } else {
         $error = "Credenciales incorrectas.";
