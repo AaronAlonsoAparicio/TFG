@@ -18,7 +18,7 @@
 
               <!-- MENÚ SOLO DESKTOP -->
               <ul class="navbar-nav d-none d-lg-flex">
-                <li class="nav-item"><a class="nav-link" href="crearPlan.php">Crear Plan</a></li>
+                <li class="nav-item"><a class="nav-link" href="create_plan.php">Crear Plan</a></li>
                 <li class="nav-item"><a class="nav-link" href="BuscarMood.php">Buscar por Mood</a></li>
                 <li class="nav-item"><a class="nav-link" href="registrarAnimo.php">Registrar Animo</a></li>
               </ul>
