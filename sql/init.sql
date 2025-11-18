@@ -70,3 +70,15 @@ CREATE TABLE moods (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- ======================
+--      DAILY_MODS
+-- ======================
+CREATE TABLE daily_moods (
+    user_id INT PRIMARY KEY,
+    mood VARCHAR(50) NOT NULL,
+    last_check DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
