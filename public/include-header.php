@@ -5,7 +5,7 @@
       <div class="row">
         <div class="col-lg-12">
           <nav class="navbar navbar-expand-lg navbar-nine">
-            <a class="navbar-brand" href="index.php">
+            <a class="navbar-brand" href="index_2.php"> <!--Modificar para redirigir la pagina-->
               <img src="assets/images/white-logo.svg" alt="Logo" />
             </a>
 
@@ -30,7 +30,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end drop" aria-labelledby="dropdownUser">
                   <li><a class="dropdown-item" href="profile.php">Perfil</a></li>
-                  <li><a class="dropdown-item" href="">Cerrar Sesión</a></li>
+                  <li><a class="dropdown-item" href="index.php">Cerrar Sesión</a></li>
                 </ul>
               </div>
             </div>
