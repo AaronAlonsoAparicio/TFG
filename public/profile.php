@@ -27,8 +27,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
     $data = [];
 
     if ($type === 'guardados') {
-        $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
+        $sql = "SELECT p.*, (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
                 FROM favorites f
                 JOIN plans p ON f.plan_id = p.id
                 WHERE f.user_id = ?";
@@ -36,16 +35,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
         $stmt->execute([$userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'publicaciones') {
-        $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+        $sql = "SELECT p.*, (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
                 FROM plans p
                 WHERE p.created_by = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'megusta') {
-        $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+        $sql = "SELECT p.*, (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
                 FROM likes l
                 JOIN plans p ON l.plan_id = p.id
                 WHERE l.user_id = ?";
@@ -551,7 +548,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
 
     </main>
 
-    <?php include 'include-footer.php'; ?>
+    <?php include '../includes/include-footer.php'; ?>
 </body>
 
 </html>
