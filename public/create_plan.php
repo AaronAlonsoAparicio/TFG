@@ -1,98 +1,139 @@
 <?php
-require_once __DIR__ . '/../src/auth.php';
-require_login();
-require_once __DIR__ . '/../src/plans.php';
+// ============================
+//  CREAR PLAN (BACKEND + FRONT EN MISMO FICHERO)
+// ============================
 
-$user = current_user($pdo);
-$error = '';
-$success = '';
+// --- Conexión a la BD ---
+$host = "localhost";
+$db   = "moodplanned";
+$user = "root";
+$pass = "";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $title = trim($_POST['title']);
-  $desc = trim($_POST['description']);
-  $cat  = trim($_POST['category']);
-
-  if ($title === '' || $desc === '') {
-    $error = "El título y la descripción son obligatorios.";
-  } else {
-    $id = create_plan($pdo, [
-      'title'       => $title,
-      'description' => $desc,
-      'category'    => $cat,
-      'lat'         => $_POST['lat'] ?? null,
-      'lng'         => $_POST['lng'] ?? null,
-      'image'       => $_POST['image'] ?? null,
-      'created_by'  => $user['id']
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
-    $success = "Plan creado correctamente 🎉";
-    header("refresh:2;url=./dashboard.php");
-  }
+} catch (Exception $e) {
+    die("Error de conexión: " . $e->getMessage());
+}
+
+session_start();
+$userId = $_SESSION['user_id'] ?? 1; // ← TEMPORAL: cambiar cuando tengas login
+
+$mensaje = "";
+
+// ============================
+//  PROCESAR FORMULARIO
+// ============================
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $titulo      = trim($_POST['titulo'] ?? "");
+    $descripcion = trim($_POST['descripcion'] ?? "");
+    $categoria   = trim($_POST['categoria'] ?? "");
+
+    if ($titulo === "" || $descripcion === "" || $categoria === "") {
+        $mensaje = "Todos los campos son obligatorios";
+    } else {
+        // ============================
+        //  SUBIR IMAGEN
+        // ============================
+        $rutaImagen = null;
+
+        if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+
+            $nombreTmp = $_FILES['imagen']['tmp_name'];
+            $nombreOriginal = $_FILES['imagen']['name'];
+
+            $carpetaDestino = "./assets/images/";
+
+            if (!file_exists($carpetaDestino)) {
+                mkdir($carpetaDestino, 0777, true);
+            }
+
+            $nombreNuevo = uniqid("plan_") . "_" . basename($nombreOriginal);
+            $rutaFinal = $carpetaDestino . $nombreNuevo;
+
+            if (move_uploaded_file($nombreTmp, $rutaFinal)) {
+                $rutaImagen = $rutaFinal;
+            } else {
+                $mensaje = "Error al subir la imagen";
+            }
+        }
+
+        if ($mensaje === "") {
+            $sql = "INSERT INTO plans (title, description, category, image, created_by)
+                    VALUES (:title, :description, :category, :image, :created_by)";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ":title"       => $titulo,
+                ":description" => $descripcion,
+                ":category"    => $categoria,
+                ":image"       => $rutaImagen,
+                ":created_by"  => $userId
+            ]);
+
+            $mensaje = "Plan creado correctamente";
+        }
+    }
 }
 ?>
-<!doctype html>
-<html lang="es">
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Crear plan - MoodPlanned</title>
-  <!-- Sin Bootstrap -->
-  <link rel="stylesheet" href="assets/css/create_plan.css?v=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear plan</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 
 <body>
-  <div class="container">
-    <h2>Nuevo Plan</h2>
+<?php include './include-header.php'; ?>
+<div class="form-wrapper">
+    <div class="form-card">
+      <h1>Crear plan</h1>
 
-    <?php if ($error): ?>
-      <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-    <?php elseif ($success): ?>
-      <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
-    <?php endif; ?>
+      <?php if ($mensaje): ?>
+        <div class="alert alert-info"> <?= $mensaje ?> </div>
+      <?php endif; ?>
 
-    <form method="POST" action="">
-      <div class="mb-3">
-        <label class="form-label">Título del plan</label>
-        <input type="text" name="title" class="form-control" required>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Descripción</label>
-        <textarea name="description" class="form-control" rows="4" required></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Emoción</label>
-        <select name="category" class="form-control">
-          <option value="" selected disabled>Selecciona una emoción</option>
-          <option value="feliz">Feliz</option>
-          <option value="triste">Triste</option>
-          <option value="enfadado">Enfadado</option>
-          <option value="relajado">Relajado</option>
-          <option value="nervioso">Nervioso</option>
-        </select>
-      </div>
-
-
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Latitud</label>
-          <input type="text" name="lat" class="form-control">
+      <form action="" method="POST" enctype="multipart/form-data">
+        <div class="form-group smooth">
+          <label for="titulo">Título del plan</label>
+          <input type="text" name="titulo" class="input-field" id="titulo" placeholder="Ej: Pasear por el parque...">
         </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Longitud</label>
-          <input type="text" name="lng" class="form-control">
+
+        <div class="form-group smooth">
+          <label for="descripcion">Descripción</label>
+          <textarea name="descripcion" class="input-field textarea" id="descripcion" rows="3" placeholder="Describe tu plan..."></textarea>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label class="form-label">Imagen (URL)</label>
-        <input type="text" name="image" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
-      </div>
+        <div class="form-group smooth">
+          <label for="categoria">Categoría</label>
+          <select name="categoria" class="input-field select" id="categoria">
+            <option>Feliz</option>
+            <option>Triste</option>
+            <option>Enfadado</option>
+            <option>Sorprendido</option>
+            <option>Enamorado</option>
+          </select>
+        </div>
 
-      <button type="submit" class="btn btn-primary w-100">Guardar plan</button>
-    </form>
-  </div>
+        <div class="form-group smooth">
+          <label for="imagen">Imagen</label><br>
+          <input type="file" name="imagen" class="file-input" id="imagen">
+        </div>
+
+        <button type="submit" class="btn-submit">Crear plan</button>
+      </form>
+    </div>
+</div>
+<?php include './include-footer.php'; ?>
 </body>
-
 </html>

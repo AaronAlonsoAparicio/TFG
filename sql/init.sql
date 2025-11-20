@@ -74,11 +74,21 @@ CREATE TABLE moods (
 -- ======================
 --      DAILY_MODS
 -- ======================
-CREATE TABLE daily_moods (
-    user_id INT PRIMARY KEY,
+CREATE TABLE user_mood_tracker ( 
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
     mood VARCHAR(50) NOT NULL,
-    last_check DATETIME NOT NULL,
+    last_check DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    plan_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_like (user_id, plan_id) -- Evita que el usuario dÃ© 2 likes al mismo plan
+);

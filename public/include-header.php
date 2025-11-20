@@ -18,18 +18,17 @@
 
               <!-- MENÚ SOLO DESKTOP -->
               <ul class="navbar-nav d-none d-lg-flex">
-                <li class="nav-item"><a class="nav-link" href="crearPlan.php">Crear Plan</a></li>
-                <li class="nav-item"><a class="nav-link" href="BuscarMood.php">Buscar por Mood</a></li>
-                <li class="nav-item"><a class="nav-link" href="registrarAnimo.php">Registrar Animo</a></li>
+                <li class="nav-item"><a class="nav-link" href="./create_plan.php">Crear Plan</a></li>
+                <li class="nav-item"><a class="nav-link" href="./mood_filter.php">Buscar por Mood</a></li>
               </ul>
               <!-- DESPLEGABLE DEL USUARIO -->
               <div class="dropdown d-flex  justify-content-end margin-left-5">
                 <a class="dropdown-toggle color-white" href="#" role="button" id="dropdownUser"
                   data-bs-toggle="dropdown" aria-expanded="false">
-                  <img src="assets/images/parque.jpg" class="rounded-circle" alt="User Photo" width="30" height="30">
+                  <img src="./assets/images/parque.jpg" class="rounded-circle" alt="User Photo" width="30" height="30">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end drop" aria-labelledby="dropdownUser">
-                  <li><a class="dropdown-item" href="profile.php">Perfil</a></li>
+                  <li><a class="dropdown-item" href="./profile.php">Perfil</a></li>
                   <li><a class="dropdown-item" href="">Cerrar Sesión</a></li>
                 </ul>
               </div>
@@ -61,10 +60,9 @@
       <!-- logo -->
       <div class="sidebar-menu">
         <ul>
-          <li><a href="crearPlan.php">Crear Plan</a></li>
-          <li><a href="BuscarMood.php">Buscar por Mood</a></li>
-          <li><a href="registrarAnimo.php">Registrar Animo</a></li>
-          <li><a href="profile.php">Ver Perfil</a></li>
+          <li><a href="./create_plan.php">Crear Plan</a></li>
+          <li><a href="./mood_filter.php">Buscar por Mood</a></li>
+          <li><a href="./profile.php">Ver Perfil</a></li>
           <li><a href="">Cerrar Sesión</a></li>
         </ul>
       </div>

@@ -15,9 +15,8 @@
         <h5 class="text-uppercase fw-semibold mb-3">Descubre</h5>
         <ul class="list-unstyled">
           <li><a href="./index.php" class="footer-link">Inicio</a></li>
-          <li><a href="./crearPlan.php" class="footer-link">Crear plan</a></li>
-          <li><a href="./BuscarMood.php" class="footer-link">Buscar por Mood</a></li>
-          <li><a href="" class="footer-link">Registrar Animo</a></li>
+          <li><a href="./create_plan.php" class="footer-link">Crear plan</a></li>
+          <li><a href="./mood_filter.php" class="footer-link">Buscar por Mood</a></li>
         </ul>
       </div>
 

@@ -1,18 +1,20 @@
 <?php
 require_once __DIR__ . '/../src/config.php';
 if (!empty($_SESSION['user_id'])) {
-    header('Location:./dashboard.php'); 
-    exit;
+  header('Location:./dashboard.php');
+  exit;
 }
 ?>
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MoodPlanned</title>
-<link rel="stylesheet" href="assets/css/style.css?v=12">
+  <link rel="stylesheet" href="assets/css/style2.css">
 </head>
+
 <body class="hero-dark">
 
   <!-- Capa de imágenes animadas -->
@@ -34,4 +36,5 @@ if (!empty($_SESSION['user_id'])) {
 
   <script src="assets/js/hero.js"></script>
 </body>
+
 </html>
