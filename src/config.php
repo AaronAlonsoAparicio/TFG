@@ -17,6 +17,10 @@ $options = [
     PDO::ATTR_EMULATE_PREPARES => false,
 ];
 
+function connectDB() {
+    return getPDOConnection();
+}
+
 function getPDOConnection() {
     global $options;
     try {
