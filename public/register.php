@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "./config.php"; // conexión a BD
+require_once "../src/config.php"; // conexión a BD
 
 $pdo = connectDB();
 
