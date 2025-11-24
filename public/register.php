@@ -1,7 +1,9 @@
 <?php
-session_start();
-require_once "../src/config.php"; // conexión a BD
+// register.php
 
+require_once "../src/config.php"; // conexión a BD y sesión iniciada
+
+// Usamos la función connectDB() de config.php
 $pdo = connectDB();
 
 $error = "";
@@ -9,10 +11,10 @@ $error = "";
 // Procesar el registro
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $confirm = $_POST['confirm'];
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm'] ?? '';
 
     // Validaciones
     if ($password !== $confirm) {
@@ -46,8 +48,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-
-
 <!doctype html>
 <html lang="es">
 
@@ -64,7 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <div class="container-fluid py-5">
     <div class="row align-items-center">
 
-      <!-- ===== CONTENEDOR IZQUIERDO: HERO, TEXTO Y FOTOS ===== -->
       <div class="col-md-6 mb-4 mb-md-0">
         <section class="hero">
           <div class="collage">
@@ -73,15 +72,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <img src="https://plus.unsplash.com/premium_photo-1683121126477-17ef068309bc?auto=format&fit=crop&q=80&w=1170" alt="">
             <img src="https://plus.unsplash.com/premium_photo-1685366454862-7f1b2d957fb1?auto=format&fit=crop&q=80&w=1170" alt="">
           </div>
-
           <h1 class="title-clip">Tu mood manda-<br>crea tu cuenta aquí</h1>
         </section>
       </div>
 
-      <!-- ===== CONTENEDOR DERECHO: FORMULARIO Y AVATARES ===== -->
       <div class="col-md-6">
         <div class="card shadow-lg border-0 rounded-4 mx-auto" style="max-width: 460px;">
           <div class="card-body p-4">
+
+            <?php if ($error): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
 
             <form method="POST" action="">
               <div class="mb-3">
@@ -107,13 +108,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               <button type="submit" class="btn btn-primary w-100">Registrarse</button>
             </form>
 
-            <!-- Galería de avatares -->
-            <div class="avatar-gallery mt-4">
-              <img src="https://plus.unsplash.com/premium_photo-1738550163830-07bccfea3805?auto=format&fit=crop&q=80&w=1295" alt="">
-              <img src="https://plus.unsplash.com/premium_photo-1738449258803-ffd12c905fd6?auto=format&fit=crop&q=80&w=1332" alt="">
-              <img src="https://plus.unsplash.com/premium_photo-1738449258706-74c1dc94b988?auto=format&fit=crop&q=80&w=1332" alt="">
-            </div>
-
             <div class="text-center mt-3">
               <small>¿Ya tienes una cuenta? <a href="login.php" class="text-decoration-none">Inicia sesión</a></small>
             </div>
@@ -128,12 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     document.querySelectorAll('.hero .collage img').forEach((img, i) => {
       const angle = [-8, 5, -10][i] || (Math.random() * 10 - 5);
       img.style.setProperty('--angle', angle + 'deg');
-    });
-    document.querySelectorAll('.avatar-gallery img').forEach(img => {
-      img.addEventListener('click', () => {
-        document.querySelectorAll('.avatar-gallery img').forEach(i => i.classList.remove('selected'));
-        img.classList.add('selected');
-      });
     });
   </script>
 
