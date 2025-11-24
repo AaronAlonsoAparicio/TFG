@@ -1,3 +1,53 @@
+<?php
+session_start();
+require_once "./config.php"; // conexión a BD
+
+$pdo = connectDB();
+
+$error = "";
+
+// Procesar el registro
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+    $confirm = $_POST['confirm'];
+
+    // Validaciones
+    if ($password !== $confirm) {
+        $error = "Las contraseñas no coinciden.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "El correo no es válido.";
+    } else {
+        // Comprobar si el email ya existe
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+
+        if ($stmt->rowCount() > 0) {
+            $error = "El correo ya está en uso.";
+        } else {
+            // Insertar usuario
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+            $insert = $pdo->prepare("
+                INSERT INTO users (name, email, password_hash)
+                VALUES (?, ?, ?)
+            ");
+
+            if ($insert->execute([$name, $email, $passwordHash])) {
+                header("Location: login.php?registered=1");
+                exit;
+            } else {
+                $error = "Hubo un error en el registro.";
+            }
+        }
+    }
+}
+?>
+
+
+
 <!doctype html>
 <html lang="es">
 
