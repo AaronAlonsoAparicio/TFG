@@ -1,3 +1,19 @@
+<?php
+// en profile.php, al principio
+require_once __DIR__ . '/src/config.php';
+require_once __DIR__ . '/src/gamification.php';
+
+$userId = $_SESSION['user_id'] ?? null;
+if ($userId) {
+    $achievements = get_user_achievements($pdo, $userId);
+    $badges = get_user_badges($pdo, $userId);
+} else {
+    $achievements = [];
+    $badges = [];
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -385,6 +401,45 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- LOGROS DEL USUARIO -->
+<section class="mt-5">
+    <h4 class="section-title">Tus logros</h4>
+
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3 mt-3">
+        <?php foreach($achievements as $ach): 
+            $locked = !$ach['unlocked'];
+            $icon = $ach['icon'] ?: 'assets/icons/ach-placeholder.svg';
+        ?>
+            <div class="col">
+                <div class="achievement-card <?php echo $locked ? 'locked' : 'unlocked'; ?> text-center p-3 shadow-sm">
+                    <img src="<?php echo htmlspecialchars($icon); ?>" class="achievement-icon mb-2" alt="icon">
+                    <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($ach['name']); ?></h6>
+                    <p class="small text-muted m-0">
+                        <?php echo $locked ? 'Bloqueado' : ('Conseguido: ' . date('d M Y', strtotime($ach['earned_at']))); ?>
+                    </p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="mt-4">
+        <h5 class="mb-3">Insignias</h5>
+        <div class="row g-2">
+            <?php foreach($badges as $b): 
+                $has = !is_null($b['earned_at']);
+                $icon = $b['icon'] ?: 'assets/icons/badge-placeholder.svg';
+            ?>
+                <div class="col-auto">
+                    <div class="d-flex flex-column align-items-center" style="width:90px;">
+                        <img src="<?php echo htmlspecialchars($icon); ?>" style="width:64px;height:64px;<?php echo $has ? '' : 'filter:grayscale(100%);opacity:0.45;'; ?>" alt="badge">
+                        <small class="mt-1 text-center"><?php echo htmlspecialchars($b['name']); ?></small>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 
                 <!-- Tarjeta 3 -->
                 <div class="col">
