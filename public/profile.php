@@ -1,494 +1,186 @@
 <?php
-// en profile.php, al principio
+// profile.php
 require_once __DIR__ . '/../src/config.php';
-require_once __DIR__ . '/../src/gamification.php';
+session_start();
 
-$userId = $_SESSION['user_id'] ?? null;
-if ($userId) {
-    $achievements = get_user_achievements($pdo, $userId);
-    $badges = get_user_badges($pdo, $userId);
-} else {
-    $achievements = [];
-    $badges = [];
+// Verificar sesión
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
 }
+
+$userId = $_SESSION['user_id'];
+
+// ===== Datos del usuario =====
+$stmt = $pdo->prepare("SELECT name, avatar, points, level FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch();
+
+// ===== Estadísticas =====
+$stmt = $pdo->prepare("SELECT COUNT(*) AS total_moods FROM moods WHERE user_id = ?");
+$stmt->execute([$userId]);
+$totalMoods = $stmt->fetch()['total_moods'] ?? 0;
+
+$stmt = $pdo->prepare("SELECT COUNT(*) AS total_plans FROM plans WHERE created_by = ?");
+$stmt->execute([$userId]);
+$totalPlans = $stmt->fetch()['total_plans'] ?? 0;
+
+// ===== Planes del usuario =====
+$stmt = $pdo->prepare("SELECT * FROM plans WHERE created_by = ? ORDER BY created_at DESC");
+$stmt->execute([$userId]);
+$plans = $stmt->fetchAll();
+
+// ===== Planes favoritos =====
+$stmt = $pdo->prepare("
+    SELECT p.* 
+    FROM plans p
+    JOIN favorites f ON p.id = f.plan_id
+    WHERE f.user_id = ?
+");
+$stmt->execute([$userId]);
+$favorites = $stmt->fetchAll();
+
+// ===== Logros del usuario =====
+$stmt = $pdo->prepare("
+    SELECT a.* 
+    FROM achievements a
+    JOIN user_achievements ua ON a.id = ua.achievement_id
+    WHERE ua.user_id = ?
+");
+$stmt->execute([$userId]);
+$achievements = $stmt->fetchAll();
+
+// ===== Insignias =====
+$stmt = $pdo->prepare("
+    SELECT b.*
+    FROM badges b
+    JOIN user_badges ub ON b.id = ub.badge_id
+    WHERE ub.user_id = ?
+");
+$stmt->execute([$userId]);
+$badges = $stmt->fetchAll();
 ?>
-
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Perfil de Usuario - MoodPlaned</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfil - MoodPlanned</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .stat-card, .plan-card, .achievement-card, .badge-card { border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); background: #fff; }
+    .achievement-card.locked { opacity: 0.4; }
+    .achievement-icon, .badge-icon { width:50px;height:50px; }
+</style>
+</head>
+<body class="bg-light">
 
-    <!--====== Title ======-->
-    <title>Moodplaned</title>
+<div class="container py-5">
+    <h1 class="mb-4">Hola, <?= htmlspecialchars($user['name']) ?></h1>
 
-    <!--====== Bootstrap css ======-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-
-    <!--====== Line Icons css ======-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="./assets/css/profile.css" />
-    <link rel="stylesheet" href="./assets/css/style.css" />
-    <!--====== Grafico ======-->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-    <style>
-        /* ==== MODAL DE PERFIL ==== */
-        .modal-content {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-            background-color: #ffffff;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Header */
-        .modal-header-profile {
-            background: linear-gradient(135deg, #4f46e5, #6d28d9);
-            color: #fff;
-            padding: 1.2rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header-profile .modal-title-profile {
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
-
-        .modal-header-profile .btn-close {
-            filter: invert(1);
-            opacity: 0.9;
-        }
-
-        /* Cuerpo */
-        .modal-body-profile {
-            padding: 2rem 1.5rem;
-            background-color: #fafafa;
-        }
-
-        .modal-body-profile label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .modal-body-profile input[type="file"],
-        .modal-body-profile input[type="text"],
-        .modal-body-profile textarea {
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            padding: 0.6rem 0.8rem;
-            background-color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        .modal-body-profile input:focus,
-        .modal-body-profile textarea:focus {
-            border-color: #6d28d9;
-            box-shadow: 0 0 0 0.15rem rgba(109, 40, 217, 0.25);
-        }
-
-        /* Vista previa de imágenes */
-        #bannerPreview {
-            border-radius: 12px;
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border: 1px solid #ddd;
-        }
-
-        #perfilPreview {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #6d28d9;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Footer */
-        .modal-footer-profile {
-            display: flex;
-            justify-content: flex-end;
-            padding: 1rem 1.5rem;
-            background-color: #f1f1f1;
-        }
-
-        .modal-footer-profile .btn {
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .modal-footer-profile .btn-primary {
-            background-color: #6d28d9;
-            border: none;
-        }
-
-        .modal-footer-profile .btn-primary:hover {
-            background-color: #4f46e5;
-        }
-
-        .modal-footer-profile .btn-secondary {
-            background-color: #e5e7eb;
-            color: #333;
-            border: none;
-        }
-
-        .modal-footer-profile .btn-secondary:hover {
-            background-color: #d1d5db;
-        }
-
-        /* Animación al abrir el modal */
-        .modal.fade .modal-dialog {
-            transform: scale(0.95);
-            transition: all 0.25s ease-in-out;
-        }
-
-        .modal.show .modal-dialog {
-            transform: scale(1);
-        }
-    </style>
-
-<body>
-
-    <?php include 'include-header.php'; ?>
-    <div class="profile-header">
-        <div class="profile-overlay"> <img src="./assets/images/parque.jpg" alt="Foto de perfil"></div>
-
-    </div>
-    <div class="profile-info">
-        <h3>Aaron</h3>
-        <p>· Amante de los viajes y las emociones ·</p>
-        <div class="mt-3">
-            <button type="button" class="btn btn-edit-perfil me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                <i class="bi bi-pencil-square"></i> Editar perfil
-            </button>
-            <a href="./index.php"><button class="btn btn-outline-danger btn-logout-perfil"><i class="bi bi-box-arrow-right"></i> Cerrar
-                sesión</button></a>
+    <!-- Puntos y nivel -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h5>Puntos</h5>
+                <p class="fs-4"><?= $user['points'] ?></p>
+            </div>
         </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header-profile">
-                    <h5 class="modal-title-profile" id="editProfileModalLabel">Editar perfil</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body-profile">
-                    <form action="#" id="editProfileForm">
-                        <div class="mb-3">
-                            <label for="bannerInput" class="form-label">Banner</label>
-                            <input class="form-control" type="file" id="bannerInput">
-                            <div class="mt-3">
-                                <img src="" alt="Banner" id="bannerPreview">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="perfilInput" class="form-label">Foto de perfil</label>
-                            <input class="form-control" type="file" id="perfilInput">
-                            <div class="mt-3">
-                                <img src="" alt="Foto de perfil" id="perfilPreview">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="descripcionInput" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcionInput" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer-profile">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" onclick="saveProfile()">Guardar cambios</button>
-                </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h5>Nivel</h5>
+                <p class="fs-4"><?= $user['level'] ?></p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <h5>Total Moods</h5>
+                <p class="fs-4"><?= $totalMoods ?></p>
             </div>
         </div>
     </div>
 
-    <main class="container mt-5 pt-5">
-
-        <!-- ESTADÍSTICAS -->
-        <section class="mb-5">
-            <div class="row g-3 justify-content-center text-center">
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="stats-card">
-                        <h4>24</h4>
-                        <p>Planes realizados</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="stats-card">
-                        <h4>😊 ❤️ 😲</h4>
-                        <p>Emociones más vividas</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="stats-card">
-                        <h4>5</h4>
-                        <p>Destinos favoritos</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="stats-card">
-                        <h4>3</h4>
-                        <p>Puntos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="col-12 col-xs-12 col-sm-12 col-md-6 col-lg-6  d-flex justify-content-center">
-                    <div class="stats-card mb-4 text-center" style="width: 90%; height: 20rem;">
-                        <h5 class="m-0">Grafico de emociones</h5>
-                        <canvas id="muscleChart"></canvas>
-                    </div>
-                </div>
-                <div class="col-12 col-xs-12 col-sm-12 col-md-6 col-lg-6 d-flex justify-content-center">
-                    <div class="stats-card mb-4 text-center" style="width: 90%; height: 20rem;">
-                        <h5 class="m-0">Grafico de emociones</h5>
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <script>
-            const ctx = document.getElementById('muscleChart');
-
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Feliz', 'Triste', 'Relajado', 'Enfadado', 'Nervioso'],
-                    datasets: [{
-                        label: 'Actual',
-                        data: [6, 4, 2, 3, 5],
-                        fill: true,
-                        backgroundColor: 'rgba(0,123,255,0.2)',
-                        borderColor: '#007bff',
-                        pointBackgroundColor: '#007bff',
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            angleLines: {
-                                color: '#333'
-                            },
-                            grid: {
-                                color: '#222'
-                            },
-                            pointLabels: {
-                                color: '#aaa',
-                                font: {
-                                    size: 12
-                                }
-                            },
-                            ticks: {
-                                display: false,
-                                beginAtZero: true,
-                                max: 10
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-            const ctx2 = document.getElementById('barChart');
-
-            new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Feliz', 'Triste', 'Relajado', 'Enfadado', 'Nervioso'],
-                    datasets: [{
-                        label: 'Actual',
-                        data: [6, 4, 2, 3, 5],
-                        fill: true,
-                        backgroundColor: 'rgba(0,123,255,0.2)',
-                        borderColor: '#007bff',
-                        pointBackgroundColor: '#007bff',
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            angleLines: {
-                                color: '#333'
-                            },
-                            grid: {
-                                color: '#222'
-                            },
-                            pointLabels: {
-                                color: '#aaa',
-                                font: {
-                                    size: 12
-                                }
-                            },
-                            ticks: {
-                                display: false,
-                                beginAtZero: true,
-                                max: 10
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-        </script>
-
-        <!-- PLANES GUARDADOS -->
-        <section>
-            <h4 class="section-title">Tus planes guardados</h4>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-
-                <!-- Tarjeta 1 -->
+    <!-- Planes creados -->
+    <h3>Mis Planes</h3>
+    <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
+        <?php if(count($plans) > 0): ?>
+            <?php foreach($plans as $plan): ?>
                 <div class="col">
-                    <div class="card plan-card-perfil border-0 shadow-sm" data-bs-toggle="modal" data-bs-target="#planModal">
-                        <div class="position-relative">
-                            <img src="./assets/images/parque.jpg" class="card-img-top" alt="Plan image">
-
-                            <div class="rating-badge">
-                                <i class="bi bi-star-fill"></i> 4.9
-                            </div>
-
-                            <div class="card-overlay-perfil">
-                                <h5 class="card-title mb-1">Atardecer en Bali</h5>
-                                <div class="d-flex justify-content-between align-items-center small">
-                                    <span><i class="bi bi-geo-alt"></i> Indonesia</span>
-                                    <span class="emoji">❤️</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tarjeta 2 -->
-                <div class="col">
-                    <div class="card plan-card-perfil border-0 shadow-sm" data-bs-toggle="modal" data-bs-target="#planModal">
-                        <div class="position-relative">
-                            <img src="./assets/images/parque.jpg" class="card-img-top" alt="Plan image">
-                            <div class="rating-badge">
-                                <i class="bi bi-star-fill"></i> 4.7
-                            </div>
-                            <div class="card-overlay-perfil">
-                                <h5 class="card-title mb-1">Caminata en los Alpes</h5>
-                                <div class="d-flex justify-content-between align-items-center small">
-                                    <span><i class="bi bi-geo-alt"></i> Suiza</span>
-                                    <span class="emoji">😲</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LOGROS DEL USUARIO -->
-<section class="mt-5">
-    <h4 class="section-title">Tus logros</h4>
-
-    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3 mt-3">
-        <?php foreach($achievements as $ach): 
-            $locked = !$ach['unlocked'];
-            $icon = $ach['icon'] ?: 'assets/icons/ach-placeholder.svg';
-        ?>
-            <div class="col">
-                <div class="achievement-card <?php echo $locked ? 'locked' : 'unlocked'; ?> text-center p-3 shadow-sm">
-                    <img src="<?php echo htmlspecialchars($icon); ?>" class="achievement-icon mb-2" alt="icon">
-                    <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($ach['name']); ?></h6>
-                    <p class="small text-muted m-0">
-                        <?php echo $locked ? 'Bloqueado' : ('Conseguido: ' . date('d M Y', strtotime($ach['earned_at']))); ?>
-                    </p>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <div class="mt-4">
-        <h5 class="mb-3">Insignias</h5>
-        <div class="row g-2">
-            <?php foreach($badges as $b): 
-                $has = !is_null($b['earned_at']);
-                $icon = $b['icon'] ?: 'assets/icons/badge-placeholder.svg';
-            ?>
-                <div class="col-auto">
-                    <div class="d-flex flex-column align-items-center" style="width:90px;">
-                        <img src="<?php echo htmlspecialchars($icon); ?>" style="width:64px;height:64px;<?php echo $has ? '' : 'filter:grayscale(100%);opacity:0.45;'; ?>" alt="badge">
-                        <small class="mt-1 text-center"><?php echo htmlspecialchars($b['name']); ?></small>
+                    <div class="plan-card">
+                        <h5><?= htmlspecialchars($plan['title']) ?></h5>
+                        <p><?= htmlspecialchars($plan['description'] ?? '') ?></p>
+                        <small><?= htmlspecialchars($plan['category'] ?? 'Sin categoría') ?></small>
                     </div>
                 </div>
             <?php endforeach; ?>
-        </div>
+        <?php else: ?>
+            <div class="col">
+                <div class="plan-card text-center">No tienes planes creados.</div>
+            </div>
+        <?php endif; ?>
     </div>
-</section>
 
-                <!-- Tarjeta 3 -->
+    <!-- Planes favoritos -->
+    <h3>Planes Favoritos</h3>
+    <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
+        <?php if(count($favorites) > 0): ?>
+            <?php foreach($favorites as $fav): ?>
                 <div class="col">
-                    <div class="card plan-card-perfil border-0 shadow-sm" data-bs-toggle="modal" data-bs-target="#planModal">
-                        <div class="position-relative">
-                            <img src="./assets/images/parque.jpg" class="card-img-top" alt="Plan image">
-                            <div class="rating-badge">
-                                <i class="bi bi-star-fill"></i> 4.5
-                            </div>
-                            <div class="card-overlay-perfil">
-                                <h5 class="card-title mb-1">Festival de la Risa</h5>
-                                <div class="d-flex justify-content-between align-items-center small">
-                                    <span><i class="bi bi-geo-alt"></i> Brasil</span>
-                                    <span class="emoji">😄</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="plan-card">
+                        <h5><?= htmlspecialchars($fav['title']) ?></h5>
+                        <p><?= htmlspecialchars($fav['description'] ?? '') ?></p>
                     </div>
                 </div>
-
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col">
+                <div class="plan-card text-center">No tienes favoritos.</div>
             </div>
-        </section>
-    </main>
-
-    <!-- MODAL PLAN -->
-    <div class="modal fade" id="planModal" tabindex="-1" aria-labelledby="planModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
-            <div class="modal-content border-0 rounded-4 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" class="img-fluid" alt="plan" />
-                <div class="modal-body p-4">
-                    <h3 class="fw-bold mb-3" id="planModalLabel">Atardecer en Bali</h3>
-                    <div class="d-flex align-items-center text-muted mb-3">
-                        <i class="bi bi-geo-alt me-2 text-primary"></i> Indonesia
-                    </div>
-                    <p class="text-secondary mb-4">
-                        Disfruta de una experiencia inolvidable viendo el atardecer junto a la playa mientras te
-                        conectas con tus emociones más profundas.
-                    </p>
-                    <div class="d-flex justify-content-start">
-                        <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
-                        <button class="btn btn-outline-danger" type="button">Eliminar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php endif; ?>
     </div>
 
+    <!-- Logros -->
+    <h3>Logros Desbloqueados</h3>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mt-3">
+        <?php if(count($achievements) > 0): ?>
+            <?php foreach($achievements as $ach):
+                $icon = $ach['icon'] ?: 'assets/icons/ach-placeholder.svg';
+            ?>
+                <div class="col">
+                    <div class="achievement-card unlocked">
+                        <img src="<?= htmlspecialchars($icon) ?>" class="achievement-icon mb-2" alt="icon">
+                        <div><?= htmlspecialchars($ach['name']) ?></div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col">
+                <div class="achievement-card text-center">No tienes logros aún.</div>
+            </div>
+        <?php endif; ?>
+    </div>
 
-    <?php include 'include-footer.php'; ?>
+    <!-- Insignias -->
+    <h3>Mis Insignias</h3>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mt-3">
+        <?php if(count($badges) > 0): ?>
+            <?php foreach($badges as $b):
+                $icon = $b['icon'] ?: 'assets/icons/ach-placeholder.svg';
+            ?>
+                <div class="col">
+                    <div class="badge-card">
+                        <img src="<?= htmlspecialchars($icon) ?>" class="badge-icon mb-2" alt="badge">
+                        <div><?= htmlspecialchars($b['name']) ?></div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col">
+                <div class="badge-card text-center">No tienes insignias aún.</div>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 </body>
-
 </html>
