@@ -25,11 +25,6 @@ if ($userId) {
     $stmt->execute([$userId]);
     $totalFavorites = $stmt->fetch()['total_favorites'] ?? 0;
 
-    // Planes del usuario
-    $stmt = $pdo->prepare("SELECT * FROM plans WHERE created_by = ? ORDER BY created_at DESC");
-    $stmt->execute([$userId]);
-    $userPlans = $stmt->fetchAll();
-
     // Planes favoritos
     $stmt = $pdo->prepare("
         SELECT p.*
@@ -63,7 +58,7 @@ if ($userId) {
 } else {
     $user = null;
     $totalMoods = $totalPlans = $totalFavorites = 0;
-    $userPlans = $favorites = $achievements = $badges = [];
+    $favorites = $achievements = $badges = [];
 }
 ?>
 
@@ -78,7 +73,6 @@ if ($userId) {
     <!--====== Bootstrap css ======-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
@@ -121,8 +115,43 @@ if ($userId) {
         </div>
     </div>
 
-    <!-- Modal de edición de perfil (sin cambios en CSS ni estructura) -->
-    <?php include 'include-profile-modal.php'; ?>
+    <!-- Modal de edición de perfil -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header-profile">
+                    <h5 class="modal-title-profile" id="editProfileModalLabel">Editar perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body-profile">
+                    <form action="#" id="editProfileForm">
+                        <div class="mb-3">
+                            <label for="bannerInput" class="form-label">Banner</label>
+                            <input class="form-control" type="file" id="bannerInput">
+                            <div class="mt-3">
+                                <img src="" alt="Banner" id="bannerPreview">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="perfilInput" class="form-label">Foto de perfil</label>
+                            <input class="form-control" type="file" id="perfilInput">
+                            <div class="mt-3">
+                                <img src="" alt="Foto de perfil" id="perfilPreview">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcionInput" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcionInput" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer-profile">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProfile()">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <main class="container mt-5 pt-5">
 
@@ -154,8 +183,6 @@ if ($userId) {
                     </div>
                 </div>
             </div>
-
-            <!-- Aquí van tus gráficos (sin cambios) -->
         </section>
 
         <!-- PLANES GUARDADOS -->
@@ -226,8 +253,28 @@ if ($userId) {
         </section>
     </main>
 
-    <!-- MODAL PLAN (sin cambios en CSS) -->
-    <?php include 'include-plan-modal.php'; ?>
+    <!-- MODAL PLAN -->
+    <div class="modal fade" id="planModal" tabindex="-1" aria-labelledby="planModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
+            <div class="modal-content border-0 rounded-4 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" class="img-fluid" alt="plan" />
+                <div class="modal-body p-4">
+                    <h3 class="fw-bold mb-3" id="planModalLabel">Atardecer en Bali</h3>
+                    <div class="d-flex align-items-center text-muted mb-3">
+                        <i class="bi bi-geo-alt me-2 text-primary"></i> Indonesia
+                    </div>
+                    <p class="text-secondary mb-4">
+                        Disfruta de una experiencia inolvidable viendo el atardecer junto a la playa mientras te
+                        conectas con tus emociones más profundas.
+                    </p>
+                    <div class="d-flex justify-content-start">
+                        <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
+                        <button class="btn btn-outline-danger" type="button">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <?php include 'include-footer.php'; ?>
 </body>
