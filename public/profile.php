@@ -1,6 +1,6 @@
 <?php
 // en profile.php, al principio
-require_once __DIR__ . '/src/config.php';
+require_once __DIR__ . '/../src/config.php';
 require_once __DIR__ . '/src/gamification.php';
 
 $userId = $_SESSION['user_id'] ?? null;
