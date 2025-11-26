@@ -15,17 +15,20 @@ try {
 }
 
 // -----------------------------------------------------
-// API AJAX: /perfil.php?action=list&type=guardados|publicaciones|megusta
+// API AJAX: /perfil.php?action=list&type=favoritos|publicaciones|guardados
 // -----------------------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'list') {
+    header('Content-Type: application/json; charset=utf-8');
+
     session_start();
     $userId = $_SESSION['user_id']; // Aquí pones el ID de usuario logueado
 
-    $type = $_GET['type'] ?? 'guardados';
+    $type = $_GET['type'] ?? 'favoritos';
     $data = [];
 
-    if ($type === 'guardados') {
-        $sql = "SELECT p.*, (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
+    if ($type === 'favoritos') {
+        $sql = "SELECT p.*, 
+                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
                 FROM favorites f
                 JOIN plans p ON f.plan_id = p.id
                 WHERE f.user_id = ?";
@@ -33,17 +36,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
         $stmt->execute([$userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'publicaciones') {
-        $sql = "SELECT p.*, (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+        $sql = "SELECT p.*, 
+                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
                 FROM plans p
                 WHERE p.created_by = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } elseif ($type === 'megusta') {
-        $sql = "SELECT p.*, (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
-                FROM likes l
-                JOIN plans p ON l.plan_id = p.id
-                WHERE l.user_id = ?";
+    } elseif ($type === 'guardados') {
+        $sql = "SELECT p.*, 
+                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+                FROM saved_plans s
+                JOIN plans p ON s.plan_id = p.id
+                WHERE s.user_id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -240,15 +245,14 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
     </div>
     <div class="profile-info">
         <h3><?= htmlspecialchars($user['name'] ?? 'Usuario') ?></h3>
-        <p>@<?= strtolower(htmlspecialchars($user['name'] ?? 'user')) ?> · <?= htmlspecialchars($user['bio'] ?? 'Añade algo de ti que mejor te describa!!') ?></p>
+        <p>@<?= strtolower(htmlspecialchars($user['name'] ?? 'user')) ?> · <?= htmlspecialchars($user['bio'] ?? 'Amante de los viajes y las emociones') ?></p>
 
         <div class="mt-3">
             <button type="button" class="btn btn-edit-perfil me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="bi bi-pencil-square"></i> Editar perfil
             </button>
-                <a class="btn btn-outline-danger btn-logout-perfil" href="./logout.php">
-                <i class="bi bi-box-arrow-right"></i>Cerrar sesión
-                </a>
+            <button class="btn btn-outline-danger btn-logout-perfil"><i class="bi bi-box-arrow-right"></i> Cerrar
+                sesión</button>
         </div>
     </div>
 
@@ -426,15 +430,15 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             });
         </script>
 
-        <!-- PLANES GUARDADOS -->
+        <!-- PLANES FAVORITOS -->
         <div class="container py-4">
 
             <h2 class="mb-3">Mi perfil</h2>
 
             <div class="profile-tabs">
-                <div class="profile-tab active" data-type="guardados">Guardados</div>
+                <div class="profile-tab active" data-type="favoritos">Favoritos</div>
                 <div class="profile-tab" data-type="publicaciones">Publicaciones</div>
-                <div class="profile-tab" data-type="megusta">Me gusta</div>
+                <div class="profile-tab" data-type="guardados">Guardados</div>
             </div>
 
             <section>
@@ -472,7 +476,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             const tabs = document.querySelectorAll('.profile-tab');
 
             // Cargar por defecto
-            document.addEventListener('DOMContentLoaded', () => loadCards('guardados'));
+            document.addEventListener('DOMContentLoaded', () => loadCards('favoritos'));
 
             // Tabs
             for (let t of tabs) {

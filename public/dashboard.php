@@ -62,6 +62,20 @@ function save_user_mood($pdo, $user_id, $table_name, $mood)
     'mood' => $mood
   ]);
 }
+function is_favorite($user_id, $plan_id, $pdo)
+{
+  $stmt = $pdo->prepare("SELECT 1 FROM favorites WHERE user_id = :user_id AND plan_id = :plan_id");
+  $stmt->execute(['user_id' => $user_id, 'plan_id' => $plan_id]);
+  return $stmt->fetch() ? true : false;
+}
+
+function is_saved($user_id, $plan_id, $pdo)
+{
+  $stmt = $pdo->prepare("SELECT 1 FROM saved_plans WHERE user_id = :user_id AND plan_id = :plan_id");
+  $stmt->execute(['user_id' => $user_id, 'plan_id' => $plan_id]);
+  return $stmt->fetch() ? true : false;
+}
+
 
 // --- 3. PETICIÓN POST: Guardar estado de ánimo ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mood_selection'])) {
@@ -95,11 +109,6 @@ $display_main_content = !$mood_check['required'];
   <!--====== Bootstrap css ======-->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     xintegrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    xintegrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-    crossorigin="anonymous"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -225,73 +234,82 @@ $display_main_content = !$mood_check['required'];
   <!--====== MAIN CONTENT (La visibilidad inicial se controla con PHP) ======-->
   <div id="main-content">
     <!--====== Planes ======-->
-
+    <?php
     // ---------------- GET MEJOR VALORADOS ----------------
+    // Sacamos los planes ordenados por rating promedio (descendente)
+    $sql2 = "
+    SELECT p.*, 
+    IFNULL(AVG(r.rating),0) AS rating 
+    FROM plans p
+    LEFT JOIN reviews r ON p.id = r.plan_id
+    GROUP BY p.id
+    ORDER BY rating DESC
+    LIMIT 12
+";
+    $stmt2 = $pdo->query($sql2);
+    $planes = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    ?>
     <div class="container" style="margin-top: 100px;">
       <h1>Mejor valorado</h1>
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
-        <!-- Las tarjetas se inyectarán aquí vía JS -->
-      </div>
 
-      <!-- Botón Cargar más -->
-      <div class="text-center my-4">
-        <button id="loadMoreBtn" class="btn btn-outline-primary" style="display:none;">Cargar más</button>
-      </div>
-    </div>
-
-    <!-- Modal único reutilizable -->
-    <div class="modal fade" id="planModal" tabindex="-1" aria-labelledby="planModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
-        <div class="modal-content border-0 rounded-4 overflow-hidden">
-          <img src="" class="img-fluid" id="modal-image" alt="plan">
-          <div class="modal-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h3 class="fw-bold mb-0" id="planModalLabel"></h3>
-              <div class="d-flex gap-2">
-                <button type="button" class="btn btn-light border rounded-circle p-2 favorite-btn" title="Favorito">
-                  <i class="bi bi-heart text-danger"></i>
-                </button>
-                <button type="button" class="btn btn-light border rounded-circle p-2 save-btn" title="Guardar">
-                  <i class="bi bi-bookmark text-primary"></i>
-                </button>
+        <?php foreach ($planes as $plan): ?>
+          <div class="col">
+            <div class="card plan-card border-0 shadow-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#planModal-<?= $plan['id'] ?>">
+              <div class="position-relative">
+                <img src="<?= htmlspecialchars($plan['image']) ?>" class="card-img-top" alt="Plan image">
+                <div class="rating-badge"><i class="bi bi-star-fill text-warning"></i> <?= number_format($plan['rating'], 1) ?></div>
+                <div class="card-overlay p-3">
+                  <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="d-flex align-items-center text-muted mb-3">
-              <i class="bi bi-geo-alt me-2"></i> <span id="modal-category"></span>
+
+            <!-- Modal único para esta tarjeta -->
+            <div class="modal fade" id="planModal-<?= $plan['id'] ?>" tabindex="-1" aria-labelledby="planModalLabel-<?= $plan['id'] ?>" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
+                <div class="modal-content border-0 rounded-4 overflow-hidden">
+                  <img src="<?= htmlspecialchars($plan['image']) ?>" class="img-fluid" alt="plan">
+                  <div class="modal-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h3 class="fw-bold mb-0"><?= htmlspecialchars($plan['title']) ?></h3>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-light border rounded-circle p-2 favorite-btn" data-plan-id="<?= $plan['id'] ?>">
+                          <i class="bi <?= is_favorite($current_user_id, $plan['id'], $pdo) ? 'bi-heart-fill text-danger' : 'bi-heart text-danger' ?>"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-light border rounded-circle p-2 save-btn" data-plan-id="<?= $plan['id'] ?>">
+                          <i class="bi <?= is_saved($current_user_id, $plan['id'], $pdo) ? 'bi-bookmark-fill text-primary' : 'bi-bookmark text-primary' ?>"></i>
+                        </button>
+
+
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center text-muted mb-3">
+                      <i class="bi bi-geo-alt me-2"></i> <?= htmlspecialchars($plan['category']) ?>
+                    </div>
+                    <p class="text-secondary mb-4"><?= htmlspecialchars($plan['description']) ?></p>
+                    <div class="d-flex justify-content-start">
+                      <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
+                      <button class="btn btn-outline-danger" type="button">Eliminar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p class="text-secondary mb-4" id="modal-description"></p>
-            <div class="d-flex justify-content-start">
-              <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
-              <button class="btn btn-outline-danger" type="button">Eliminar</button>
-            </div>
+
           </div>
-        </div>
+
+        <?php endforeach; ?>
+
       </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const modal = document.getElementById('planModal');
-      const modalTitle = modal.querySelector('#planModalLabel');
-      const modalImage = modal.querySelector('#modal-image');
-      const modalDescription = modal.querySelector('#modal-description');
-      const modalCategory = modal.querySelector('#modal-category');
-
-      // Cuando se abre el modal, llenamos sus datos dinámicamente
-      const cards = document.querySelectorAll('.plan-card');
-      cards.forEach(card => {
-        card.addEventListener('click', () => {
-          modalTitle.textContent = card.dataset.title;
-          modalImage.src = card.dataset.image;
-          modalDescription.textContent = card.dataset.description;
-          modalCategory.textContent = card.dataset.category;
-        });
-      });
-    </script>
-  </div>
-
-
-  <!--====== END Planes ======-->
+    <!--====== END Planes ======-->
   </div>
 
   <?php include 'include-footer.php'; ?>
@@ -306,90 +324,69 @@ $display_main_content = !$mood_check['required'];
         moodModal.show();
       }
 
-      // 2. Lógica de botones Favorito/Guardado (mantenida)
       document.querySelectorAll('.favorite-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const icon = btn.querySelector('i');
-          icon.classList.toggle('bi-heart');
-          icon.classList.toggle('bi-heart-fill');
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation(); // Evita abrir el modal
+          const planId = btn.dataset.planId;
+
+          fetch('../src/toggle_favorite.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: 'plan_id=' + planId
+            })
+            .then(res => res.json())
+            .then(data => {
+              console.log(data); // <- Esto te ayudará a depurar
+              if (data.success) {
+                const icon = btn.querySelector('i');
+                if (data.status === 'added') {
+                  icon.classList.remove('bi-heart');
+                  icon.classList.add('bi-heart-fill', 'text-danger');
+                } else {
+                  icon.classList.remove('bi-heart-fill');
+                  icon.classList.add('bi-heart');
+                  icon.classList.remove('text-danger');
+                }
+              } else {
+                alert('Error: ' + data.message);
+              }
+            })
+            .catch(err => console.error('Fetch error:', err));
         });
       });
 
       document.querySelectorAll('.save-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const icon = btn.querySelector('i');
-          icon.classList.toggle('bi-bookmark');
-          icon.classList.toggle('bi-bookmark-fill');
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation(); // evita abrir modal
+          const planId = btn.closest('.favorite-btn, .save-btn').dataset.planId || btn.dataset.planId;
+          fetch('../src/toggle_saved.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: 'plan_id=' + planId
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const icon = btn.querySelector('i');
+                if (data.status === 'added') {
+                  icon.classList.remove('bi-bookmark');
+                  icon.classList.add('bi-bookmark-fill');
+                } else {
+                  icon.classList.remove('bi-bookmark-fill');
+                  icon.classList.add('bi-bookmark');
+                }
+              }
+            });
         });
       });
+
     });
   </script>
-
-  <!-- Script para añadir los planes -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const container = document.getElementById('cards-container');
-      const loadMoreBtn = document.getElementById('loadMoreBtn');
-      const limit = 8;
-      let offset = 0;
-
-      const modal = new bootstrap.Modal(document.getElementById('planModal'));
-      const modalTitle = document.getElementById('planModalLabel');
-      const modalImage = document.getElementById('modal-image');
-      const modalDescription = document.getElementById('modal-description');
-      const modalCategory = document.getElementById('modal-category');
-
-      function loadPlans() {
-        fetch(`./load_plans.php?limit=${limit}&offset=${offset}`)
-          .then(res => res.json())
-          .then(plans => {
-            plans.forEach(plan => {
-              const col = document.createElement('div');
-              col.classList.add('col');
-              col.innerHTML = `
-                        <div class="card plan-card border-0 shadow-sm" style="cursor:pointer;">
-                            <div class="position-relative">
-                                <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
-                                <div class="rating-badge"><i class="bi bi-star-fill text-warning"></i> ${parseFloat(plan.rating).toFixed(1)}</div>
-                                <div class="card-overlay p-3">
-                                    <h5 class="card-title mb-1">${plan.title}</h5>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="text-muted small"><i class="bi bi-geo-alt"></i> ${plan.category}</div>
-                                        <div><span class="emoji">😊</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
-
-              col.querySelector('.plan-card').addEventListener('click', () => {
-                modalTitle.textContent = plan.title;
-                modalImage.src = plan.image;
-                modalDescription.textContent = plan.description;
-                modalCategory.textContent = plan.category;
-                modal.show();
-              });
-
-              container.appendChild(col);
-            });
-
-            offset += plans.length;
-
-            // Mostrar u ocultar botón
-            if (plans.length === limit) {
-              loadMoreBtn.style.display = 'inline-block';
-            } else {
-              loadMoreBtn.style.display = 'none';
-            }
-          });
-      }
-
-      loadMoreBtn.addEventListener('click', loadPlans);
-
-      // Carga inicial
-      loadPlans();
-    });
-  </script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

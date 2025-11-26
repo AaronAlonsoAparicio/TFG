@@ -13,7 +13,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255),   -- Imagen de perfil del usuario
     banner VARCHAR(255),          -- Imagen de banner del usuario
-    bio VARCHAR(255),          -- Biografía del usuario
+    bio VARCHAR(255),          -- BiografÃ­a del usuario
     points INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -84,12 +84,12 @@ CREATE TABLE user_mood_tracker (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE likes (
+CREATE TABLE IF NOT EXISTS saved_plans (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     plan_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_like (user_id, plan_id) -- Evita que el usuario dÃ© 2 likes al mismo plan
+    UNIQUE KEY unique_saved (user_id, plan_id)
 );

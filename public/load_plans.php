@@ -17,7 +17,7 @@ $offset = intval($_GET['offset'] ?? 0);
 
 $sql = "
     SELECT p.*, 
-           IFNULL(AVG(r.rating),0) AS rating 
+    IFNULL(AVG(r.rating),0) AS rating 
     FROM plans p
     LEFT JOIN reviews r ON p.id = r.plan_id
     GROUP BY p.id
