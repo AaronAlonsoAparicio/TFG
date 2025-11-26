@@ -18,8 +18,6 @@ try {
 // API AJAX: /perfil.php?action=list&type=guardados|publicaciones|megusta
 // -----------------------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'list') {
-    header('Content-Type: application/json; charset=utf-8');
-
     session_start();
     $userId = $_SESSION['user_id']; // Aquí pones el ID de usuario logueado
 
@@ -54,6 +52,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
     echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
     exit;
 }
+session_start();
+$userId = $_SESSION['user_id']; // Aquí pones el ID de usuario logueado
+// Traer datos del usuario
+$stmt = $pdo->prepare("SELECT name, profile_image, banner, bio, points FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -231,18 +235,20 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
 
     <?php include 'include-header.php'; ?>
     <div class="profile-header">
-        <div class="profile-overlay"> <img src="./assets/images/parque.jpg" alt="Foto de perfil"></div>
+        <div class="profile-overlay"> <img src="<?= htmlspecialchars($user['profile_image']) ?>" alt="Foto de perfil"></div>
 
     </div>
     <div class="profile-info">
-        <h3>PabloDUDI</h3>
-        <p>@pablodudi · Amante de los viajes y las emociones</p>
+        <h3><?= htmlspecialchars($user['name'] ?? 'Usuario') ?></h3>
+        <p>@<?= strtolower(htmlspecialchars($user['name'] ?? 'user')) ?> · <?= htmlspecialchars($user['bio'] ?? 'Añade algo de ti que mejor te describa!!') ?></p>
+
         <div class="mt-3">
             <button type="button" class="btn btn-edit-perfil me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="bi bi-pencil-square"></i> Editar perfil
             </button>
-            <button class="btn btn-outline-danger btn-logout-perfil"><i class="bi bi-box-arrow-right"></i> Cerrar
-                sesión</button>
+                <a class="btn btn-outline-danger btn-logout-perfil" href="./logout.php">
+                <i class="bi bi-box-arrow-right"></i>Cerrar sesión
+                </a>
         </div>
     </div>
 
@@ -548,7 +554,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
 
     </main>
 
-    <?php include '../includes/include-footer.php'; ?>
+    <?php include 'include-footer.php'; ?>
 </body>
 
 </html>

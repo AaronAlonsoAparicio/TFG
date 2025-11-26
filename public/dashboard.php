@@ -225,50 +225,17 @@ $display_main_content = !$mood_check['required'];
   <!--====== MAIN CONTENT (La visibilidad inicial se controla con PHP) ======-->
   <div id="main-content">
     <!--====== Planes ======-->
-    <?php
-// ---------------- GET MEJOR VALORADOS ----------------
-// Sacamos los planes ordenados por rating promedio (descendente)
-$sql2 = "
-    SELECT p.*, 
-           IFNULL(AVG(r.rating),0) AS rating 
-    FROM plans p
-    LEFT JOIN reviews r ON p.id = r.plan_id
-    GROUP BY p.id
-    ORDER BY rating DESC
-    LIMIT 12
-";
-$stmt2 = $pdo->query($sql2);
-$planes = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-?>
+
+    // ---------------- GET MEJOR VALORADOS ----------------
     <div class="container" style="margin-top: 100px;">
       <h1>Mejor valorado</h1>
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
+        <!-- Las tarjetas se inyectarán aquí vía JS -->
+      </div>
 
-        <?php foreach ($planes as $plan): ?>
-          <div class="col">
-            <div class="card plan-card border-0 shadow-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#planModal"
-              data-title="<?= htmlspecialchars($plan['title']) ?>"
-              data-image="<?= htmlspecialchars($plan['image']) ?>"
-              data-description="<?= htmlspecialchars($plan['description']) ?>"
-              data-category="<?= htmlspecialchars($plan['category']) ?>"
-              data-rating="<?= number_format($plan['rating'], 1) ?>">
-              <div class="position-relative">
-                <img src="<?= htmlspecialchars($plan['image']) ?>" class="card-img-top" alt="Plan image">
-                <div class="rating-badge"><i class="bi bi-star-fill text-warning"></i> <?= number_format($plan['rating'], 1) ?></div>
-                <div class="card-overlay p-3">
-                  <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
-                    <div><span class="emoji">😊</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <?php endforeach; ?>
-
+      <!-- Botón Cargar más -->
+      <div class="text-center my-4">
+        <button id="loadMoreBtn" class="btn btn-outline-primary" style="display:none;">Cargar más</button>
       </div>
     </div>
 
@@ -357,6 +324,72 @@ $planes = $stmt2->fetchAll(PDO::FETCH_ASSOC);
       });
     });
   </script>
+
+  <!-- Script para añadir los planes -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('cards-container');
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+      const limit = 8;
+      let offset = 0;
+
+      const modal = new bootstrap.Modal(document.getElementById('planModal'));
+      const modalTitle = document.getElementById('planModalLabel');
+      const modalImage = document.getElementById('modal-image');
+      const modalDescription = document.getElementById('modal-description');
+      const modalCategory = document.getElementById('modal-category');
+
+      function loadPlans() {
+        fetch(`./load_plans.php?limit=${limit}&offset=${offset}`)
+          .then(res => res.json())
+          .then(plans => {
+            plans.forEach(plan => {
+              const col = document.createElement('div');
+              col.classList.add('col');
+              col.innerHTML = `
+                        <div class="card plan-card border-0 shadow-sm" style="cursor:pointer;">
+                            <div class="position-relative">
+                                <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
+                                <div class="rating-badge"><i class="bi bi-star-fill text-warning"></i> ${parseFloat(plan.rating).toFixed(1)}</div>
+                                <div class="card-overlay p-3">
+                                    <h5 class="card-title mb-1">${plan.title}</h5>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="text-muted small"><i class="bi bi-geo-alt"></i> ${plan.category}</div>
+                                        <div><span class="emoji">😊</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+
+              col.querySelector('.plan-card').addEventListener('click', () => {
+                modalTitle.textContent = plan.title;
+                modalImage.src = plan.image;
+                modalDescription.textContent = plan.description;
+                modalCategory.textContent = plan.category;
+                modal.show();
+              });
+
+              container.appendChild(col);
+            });
+
+            offset += plans.length;
+
+            // Mostrar u ocultar botón
+            if (plans.length === limit) {
+              loadMoreBtn.style.display = 'inline-block';
+            } else {
+              loadMoreBtn.style.display = 'none';
+            }
+          });
+      }
+
+      loadMoreBtn.addEventListener('click', loadPlans);
+
+      // Carga inicial
+      loadPlans();
+    });
+  </script>
+
 </body>
 
 </html>

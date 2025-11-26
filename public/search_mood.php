@@ -1,5 +1,4 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
 
 // Conexión BBDD
 $host = "localhost";
@@ -18,13 +17,9 @@ if ($conn->connect_error) {
 
 // Recibir emoción (categoría)
 $category = $_GET["emotion"] ?? "all";
+$limit = intval($_GET["limit"] ?? 8);   // Número de planes por "página"
+$offset = intval($_GET["offset"] ?? 0); // Desde dónde empezar
 
-/*
-  Consulta SQL:
-  - Selecciona los planes
-  - Calcula la media de puntuaciones desde reviews
-  - Ordena de mayor a menor rating
-*/
 $sql = "
     SELECT 
         p.id,
@@ -41,28 +36,25 @@ if ($category !== "all") {
     $sql .= " WHERE p.category = ? ";
 }
 
-$sql .= "
-    GROUP BY p.id
-    ORDER BY rating DESC
-";
+$sql .= " GROUP BY p.id ORDER BY rating DESC LIMIT ? OFFSET ?";
 
-// Preparar la sentencia SQL
 $stmt = $conn->prepare($sql);
 
 if ($category !== "all") {
-    $stmt->bind_param("s", $category);
+    $stmt->bind_param("sii", $category, $limit, $offset);
+} else {
+    $stmt->bind_param("ii", $limit, $offset);
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
 
 $planes = [];
-
 while ($row = $result->fetch_assoc()) {
     $planes[] = $row;
 }
 
-// Devolver JSON
 echo json_encode($planes, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
 
 ?>

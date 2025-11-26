@@ -1,3 +1,11 @@
+<?php
+require_once "../src/config.php";
+$userId = $_SESSION['user_id']; // Aquí pones el ID de usuario logueado
+// Traer datos del usuario
+$stmt = $pdo->prepare("SELECT name, profile_image, banner, bio, points FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+?>
   <!--====== NAVBAR NINE PART START ======-->
 <header>
   <section class="navbar-area navbar-nine">
@@ -25,11 +33,11 @@
               <div class="dropdown d-flex  justify-content-end margin-left-5">
                 <a class="dropdown-toggle color-white" href="#" role="button" id="dropdownUser"
                   data-bs-toggle="dropdown" aria-expanded="false">
-                  <img src="./assets/images/parque.jpg" class="rounded-circle" alt="User Photo" width="30" height="30">
+                  <img src="<?= htmlspecialchars($user['profile_image']) ?>" class="rounded-circle" alt="User Photo" width="30" height="30">
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end drop" aria-labelledby="dropdownUser">
                   <li><a class="dropdown-item" href="./profile.php">Perfil</a></li>
-                  <li><a class="dropdown-item" href="">Cerrar Sesión</a></li>
+                  <li><a class="dropdown-item" href="./logout.php">Cerrar Sesión</a></li>
                 </ul>
               </div>
             </div>
@@ -63,7 +71,7 @@
           <li><a href="./create_plan.php">Crear Plan</a></li>
           <li><a href="./mood_filter.php">Buscar por Mood</a></li>
           <li><a href="./profile.php">Ver Perfil</a></li>
-          <li><a href="">Cerrar Sesión</a></li>
+          <li><a href="./logout.php">Cerrar Sesión</a></li>
         </ul>
       </div>
       <!-- menu -->

@@ -13,6 +13,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     profile_image VARCHAR(255),   -- Imagen de perfil del usuario
     banner VARCHAR(255),          -- Imagen de banner del usuario
+    bio VARCHAR(255),          -- Biografía del usuario
     points INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

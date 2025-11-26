@@ -12,10 +12,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"]);
     $password = trim($_POST["password"]);
     $confirm = trim($_POST["confirm"]);
+    $avatar = trim($_POST["avatar"] ?? ""); // URL del avatar seleccionado
 
     // 2. Validaciones
-    if (empty($name) || empty($email) || empty($password) || empty($confirm)) {
-        $errors[] = "Todos los campos son obligatorios.";
+    if (empty($name) || empty($email) || empty($password) || empty($confirm) || empty($avatar)) {
+        $errors[] = "Todos los campos son obligatorios, incluyendo la selección de avatar.";
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -42,10 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errors)) {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        $insert = $pdo->prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
-        $insert->execute([$name, $email, $passwordHash]);
+        $insert = $pdo->prepare("INSERT INTO users (name, email, password_hash, profile_image) VALUES (?, ?, ?, ?)");
+        $insert->execute([$name, $email, $passwordHash, $avatar]);
 
-        $success = "Cuenta creada correctamente. ¡Ahora puedes iniciar sesión!";
         header("Location: login.php?registered=1");
         exit;
     }
@@ -61,6 +61,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <title>Registro - MoodPlanned</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./assets/css/register.css">
+  <style>
+    .avatar-gallery img {
+      cursor: pointer;
+      border: 3px solid transparent;
+      border-radius: 50%;
+      width: 80px;
+      margin-right: 10px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .avatar-gallery img.selected {
+      border-color: #0d6efd;
+      transform: scale(1.1);
+    }
+  </style>
 </head>
 
 <body class="bg-light">
@@ -121,15 +136,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <input type="password" class="form-control" id="confirm" name="confirm" required>
               </div>
 
-              <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+              <!-- Input oculto para guardar la URL del avatar -->
+              <input type="hidden" name="avatar" id="avatar" value="">
+
               <!-- Galería de avatares -->
               <div class="avatar-gallery mt-4">
-                <img src="https://plus.unsplash.com/premium_photo-1738550163830-07bccfea3805?auto=format&fit=crop&q=80&w=1295" alt="">
-                <img src="https://plus.unsplash.com/premium_photo-1738449258803-ffd12c905fd6?auto=format&fit=crop&q=80&w=1332" alt="">
-                <img src="https://plus.unsplash.com/premium_photo-1738449258706-74c1dc94b988?auto=format&fit=crop&q=80&w=1332" alt="">
+                <img src="https://plus.unsplash.com/premium_photo-1738550163830-07bccfea3805?auto=format&fit=crop&q=80&w=1295" alt="Avatar 1">
+                <img src="https://plus.unsplash.com/premium_photo-1738449258803-ffd12c905fd6?auto=format&fit=crop&q=80&w=1332" alt="Avatar 2">
+                <img src="https://plus.unsplash.com/premium_photo-1738449258706-74c1dc94b988?auto=format&fit=crop&q=80&w=1332" alt="Avatar 3">
               </div>
-            </form>
 
+              <button type="submit" class="btn btn-primary w-100 mt-4">Registrarse</button>
+
+            </form>
 
             <div class="text-center mt-3">
               <small>¿Ya tienes una cuenta? <a href="login.php" class="text-decoration-none">Inicia sesión</a></small>
@@ -143,15 +162,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </div>
 
   <script>
+    // Collage rotation
     document.querySelectorAll('.hero .collage img').forEach((img, i) => {
       const angle = [-8, 5, -10][i] || (Math.random() * 10 - 5);
       img.style.setProperty('--angle', angle + 'deg');
     });
 
+    // Selección de avatar
     document.querySelectorAll('.avatar-gallery img').forEach(img => {
       img.addEventListener('click', () => {
         document.querySelectorAll('.avatar-gallery img').forEach(i => i.classList.remove('selected'));
         img.classList.add('selected');
+        document.getElementById('avatar').value = img.src;
       });
     });
   </script>
