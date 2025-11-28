@@ -36,10 +36,6 @@
     <!-- GRID DONDE IRÁN LAS TARJETAS FILTRADAS -->
     <div class="container">
         <div id="plansContainer" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"></div>
-        <!-- BOTÓN CARGAR MÁS -->
-    <div class="text-center my-4">
-        <button id="loadMoreBtn" class="btn btn-outline-primary">Cargar más</button>
-    </div>
     </div>
     <!-- MODAL REUTILIZABLE -->
     <div class="modal fade" id="planModal" tabindex="-1" aria-labelledby="planModalLabel" aria-hidden="true">
@@ -83,54 +79,51 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
 
-    const buttons = document.querySelectorAll(".filter-btn");
-    const container = document.getElementById("plansContainer");
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
+            const buttons = document.querySelectorAll(".filter-btn");
+            const container = document.getElementById("plansContainer");
 
-    // MODAL ELEMENTOS
-    const modal = new bootstrap.Modal(document.getElementById("planModal"));
-    const modalImg = document.getElementById("modal-image");
-    const modalTitle = document.getElementById("planModalLabel");
-    const modalCategory = document.getElementById("modal-category");
-    const modalDescription = document.getElementById("modal-description");
+            // MODAL ELEMENTOS
+            const modal = new bootstrap.Modal(document.getElementById("planModal"));
+            const modalImg = document.getElementById("modal-image");
+            const modalTitle = document.getElementById("planModalLabel");
+            const modalCategory = document.getElementById("modal-category");
+            const modalDescription = document.getElementById("modal-description");
 
-    // Variables de paginación
-    let offset = 0;
-    const limit = 8;
-    let currentEmotion = "all";
-    let totalLoaded = 0; // total de planes cargados
-    let lastBatchCount = 0; // cantidad cargada en la última petición
+            // Cargar todos al inicio
+            loadPlans("all");
 
-    // Función principal para cargar planes
-    function loadPlans(emotion, reset = true) {
-        if (reset) {
-            offset = 0;
-            totalLoaded = 0;
-            container.innerHTML = "";
-            currentEmotion = emotion;
-            loadMoreBtn.style.display = "none"; // ocultar mientras carga
-        }
+            // Filtros
+            buttons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    buttons.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
 
-        fetch(`search_mood.php?emotion=${emotion}&limit=${limit}&offset=${offset}`)
-            .then(res => res.json())
-            .then(plans => {
+                    const filter = btn.getAttribute("data-filter");
+                    loadPlans(filter);
+                });
+            });
 
-                lastBatchCount = plans.length;
+            function loadPlans(emotion) {
+                fetch("search_mood.php?emotion=" + emotion)
+                    .then(res => res.json())
+                    .then(plans => {
 
-                if (plans.length === 0 && offset === 0) {
-                    container.innerHTML = `
+                        container.innerHTML = "";
+
+                        if (plans.length === 0) {
+                            container.innerHTML = `
                         <div class="col-12 text-center py-4">
                             <h5 class="text-muted">No hay planes para esta emoción.</h5>
                         </div>`;
-                    loadMoreBtn.style.display = "none";
-                    return;
-                }
+                            return;
+                        }
 
-                plans.forEach(plan => {
-                    const col = document.createElement("div");
-                    col.classList.add("col");
+                        plans.forEach(plan => {
 
-                    col.innerHTML = `
+                            const col = document.createElement("div");
+                            col.classList.add("col");
+
+                            col.innerHTML = `
                         <div class="card plan-card border-0 shadow-sm open-modal-btn" style="cursor:pointer;">
                             <div class="position-relative">
                                 <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
@@ -149,50 +142,22 @@
                             </div>
                         </div>`;
 
-                    col.querySelector(".open-modal-btn").addEventListener("click", () => {
-                        modalImg.src = plan.image;
-                        modalTitle.textContent = plan.title;
-                        modalCategory.textContent = plan.category;
-                        modalDescription.textContent = plan.description;
-                        modal.show();
+                            // Evento para abrir el modal
+                            col.querySelector(".open-modal-btn").addEventListener("click", () => {
+                                modalImg.src = plan.image;
+                                modalTitle.textContent = plan.title;
+                                modalCategory.textContent = plan.category;
+                                modalDescription.textContent = plan.description;
+
+                                modal.show();
+                            });
+
+                            container.appendChild(col);
+                        });
                     });
+            }
 
-                    container.appendChild(col);
-                });
-
-                totalLoaded += plans.length;
-                offset += plans.length;
-
-                // Mostrar el botón solo si la última carga fue igual al límite
-                if (lastBatchCount === limit) {
-                    loadMoreBtn.style.display = "inline-block";
-                } else {
-                    loadMoreBtn.style.display = "none";
-                }
-
-            }).catch(err => {
-                console.error("Error cargando planes:", err);
-            });
-    }
-
-    // Evento del botón "Cargar más"
-    loadMoreBtn.addEventListener("click", () => loadPlans(currentEmotion, false));
-
-    // Eventos de filtros
-    buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            buttons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-
-            const filter = btn.getAttribute("data-filter");
-            loadPlans(filter, true); // resetear lista y offset
         });
-    });
-
-    // Carga inicial
-    loadPlans("all", true);
-});
-
     </script>
 
 </body>

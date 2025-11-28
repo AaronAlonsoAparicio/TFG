@@ -28,11 +28,13 @@ CREATE TABLE plans (
     category VARCHAR(50),
     lat DECIMAL(10,7),
     lng DECIMAL(10,7),
+    direccion VARCHAR(255),       -- Nueva columna para la dirección
     image VARCHAR(255),           -- Imagen asociada al plan
     created_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
+
 
 -- ======================
 --       FAVORITES
@@ -51,13 +53,14 @@ CREATE TABLE favorites (
 -- ======================
 CREATE TABLE reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    plan_id INT,
-    rating TINYINT,   -- 1-5
+    user_id INT NOT NULL,
+    plan_id INT NOT NULL,
+    rating TINYINT NOT NULL,   -- 1-5
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
+    FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_review (user_id, plan_id)
 );
 
 -- ======================

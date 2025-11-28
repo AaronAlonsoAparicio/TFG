@@ -1,5 +1,6 @@
 <?php
-// perfil.php — versión usando tu base de datos REAL con PDO
+// profile.php — versión usando tu base de datos REAL con PDO
+
 // ---------------- CONFIGURACIÓN DB ----------------
 $host = "localhost";
 $db   = "moodplanned";
@@ -15,20 +16,20 @@ try {
 }
 
 // -----------------------------------------------------
-// API AJAX: /perfil.php?action=list&type=favoritos|publicaciones|guardados
+// API AJAX: /profile.php?action=list&type=favoritos|publicaciones|guardados
 // -----------------------------------------------------
 if (isset($_GET['action']) && $_GET['action'] === 'list') {
     header('Content-Type: application/json; charset=utf-8');
 
     session_start();
-    $userId = $_SESSION['user_id']; // Aquí pones el ID de usuario logueado
+    $userId = $_SESSION['user_id'];
 
     $type = $_GET['type'] ?? 'favoritos';
     $data = [];
 
     if ($type === 'favoritos') {
         $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
+                        (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
                 FROM favorites f
                 JOIN plans p ON f.plan_id = p.id
                 WHERE f.user_id = ?";
@@ -37,7 +38,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'publicaciones') {
         $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+                        (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
                 FROM plans p
                 WHERE p.created_by = ?";
         $stmt = $pdo->prepare($sql);
@@ -45,7 +46,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'guardados') {
         $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+                        (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
                 FROM saved_plans s
                 JOIN plans p ON s.plan_id = p.id
                 WHERE s.user_id = ?";
@@ -57,9 +58,71 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
     echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+// ---------------------- CONTADOR DE PLANES CREADOS ----------------------
+if (isset($_GET['action']) && $_GET['action'] === 'count_created') {
+    header('Content-Type: application/json');
+
+    session_start();
+    $userId = $_SESSION['user_id'];
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM plans WHERE created_by = ?");
+    $stmt->execute([$userId]);
+    $count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    echo json_encode(['status' => 'ok', 'count' => $count]);
+    exit;
+}
+
+// ---------------------- EMOCIONES MÁS VIVIDAS ----------------------
+if (isset($_GET['action']) && $_GET['action'] === 'top_moods') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    session_start();
+    $userId = $_SESSION['user_id'];
+
+    // Contar las emociones más frecuentes desde user_mood_tracker
+    $stmt = $pdo->prepare("
+        SELECT mood, COUNT(*) AS count
+        FROM user_mood_tracker
+        WHERE user_id = ?
+        GROUP BY mood
+        ORDER BY count DESC
+        LIMIT 3
+    ");
+    $stmt->execute([$userId]);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ---------------------- ESTADÍSTICAS DE EMOCIONES ----------------------
+if (isset($_GET['action']) && $_GET['action'] === 'mood_stats') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    session_start();
+    $userId = $_SESSION['user_id'];
+
+    // Contamos cuántas veces aparece cada emoción
+    $stmt = $pdo->prepare("
+        SELECT mood, COUNT(*) AS count
+        FROM user_mood_tracker
+        WHERE user_id = ?
+        GROUP BY mood
+    ");
+    $stmt->execute([$userId]);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+
+
+// ---------------------- DATOS DE USUARIO ----------------------
 session_start();
-$userId = $_SESSION['user_id']; // Aquí pones el ID de usuario logueado
-// Traer datos del usuario
+$userId = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT name, profile_image, banner, bio, points FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -251,8 +314,9 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             <button type="button" class="btn btn-edit-perfil me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                 <i class="bi bi-pencil-square"></i> Editar perfil
             </button>
-            <button class="btn btn-outline-danger btn-logout-perfil"><i class="bi bi-box-arrow-right"></i> Cerrar
-                sesión</button>
+            <a class="btn btn-outline-danger btn-logout-perfil" href="./logout.php">
+                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+            </a>
         </div>
     </div>
 
@@ -301,16 +365,18 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             <div class="row g-3 justify-content-center text-center">
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="stats-card">
-                        <h4>24</h4>
-                        <p>Planes realizados</p>
+                        <h4 id="created-plans-count">0</h4>
+                        <p>Planes creados</p>
                     </div>
                 </div>
+
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="stats-card">
-                        <h4>😊 ❤️ 😲</h4>
+                        <h4 id="top-moods">...</h4>
                         <p>Emociones más vividas</p>
                     </div>
                 </div>
+
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="stats-card">
                         <h4>5</h4>
@@ -340,94 +406,106 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
         <script>
-            const ctx = document.getElementById('muscleChart');
+            const moodLabels = ['Feliz', 'Triste', 'Enfadado', 'Sorprendido', 'Enamorado'];
+            const moodEmojisGrafico = {
+                'feliz': "😊",
+                'triste': "😢",
+                'enfadado': "😡",
+                'sorprendido': "😲",
+                'enamorado': "😍"
+            };
 
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Feliz', 'Triste', 'Relajado', 'Enfadado', 'Nervioso'],
-                    datasets: [{
-                        label: 'Actual',
-                        data: [6, 4, 2, 3, 5],
-                        fill: true,
-                        backgroundColor: 'rgba(0,123,255,0.2)',
-                        borderColor: '#007bff',
-                        pointBackgroundColor: '#007bff',
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            angleLines: {
-                                color: '#333'
-                            },
-                            grid: {
-                                color: '#222'
-                            },
-                            pointLabels: {
-                                color: '#aaa',
-                                font: {
-                                    size: 12
-                                }
-                            },
-                            ticks: {
-                                display: false,
-                                beginAtZero: true,
-                                max: 10
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-            const ctx2 = document.getElementById('barChart');
+            let radarChart = null;
+            let barChart = null;
 
-            new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Feliz', 'Triste', 'Relajado', 'Enfadado', 'Nervioso'],
-                    datasets: [{
-                        label: 'Actual',
-                        data: [6, 4, 2, 3, 5],
-                        fill: true,
-                        backgroundColor: 'rgba(0,123,255,0.2)',
-                        borderColor: '#007bff',
-                        pointBackgroundColor: '#007bff',
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            angleLines: {
-                                color: '#333'
+            async function loadMoodStats() {
+                try {
+                    const res = await fetch('profile.php?action=mood_stats', {
+                        credentials: 'same-origin'
+                    });
+                    const json = await res.json();
+                    if (json.status !== 'ok') return;
+
+                    const countsMap = {};
+                    json.data.forEach(m => countsMap[m.mood.toLowerCase()] = Number(m.count));
+
+                    const dataCounts = moodLabels.map(label => countsMap[label.toLowerCase()] || 0);
+
+                    // === Radar Chart ===
+                    if (!radarChart) {
+                        const ctx = document.getElementById('muscleChart');
+                        radarChart = new Chart(ctx, {
+                            type: 'radar',
+                            data: {
+                                labels: moodLabels.map(l => moodEmojisGrafico[l.toLowerCase()] + ' ' + l),
+                                datasets: [{
+                                    label: 'Emociones',
+                                    data: dataCounts,
+                                    fill: true,
+                                    backgroundColor: 'rgba(0,123,255,0.2)',
+                                    borderColor: '#007bff',
+                                    pointBackgroundColor: '#007bff',
+                                }]
                             },
-                            grid: {
-                                color: '#222'
-                            },
-                            pointLabels: {
-                                color: '#aaa',
-                                font: {
-                                    size: 12
+                            options: {
+                                scales: {
+                                    r: {
+                                        ticks: {
+                                            beginAtZero: true,
+                                            max: Math.max(...dataCounts, 1)
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
                                 }
-                            },
-                            ticks: {
-                                display: false,
-                                beginAtZero: true,
-                                max: 10
                             }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+                        });
+                    } else {
+                        radarChart.data.datasets[0].data = dataCounts;
+                        radarChart.update();
                     }
+
+                    // === Bar Chart ===
+                    if (!barChart) {
+                        const ctx2 = document.getElementById('barChart');
+                        barChart = new Chart(ctx2, {
+                            type: 'bar',
+                            data: {
+                                labels: moodLabels.map(l => moodEmojisGrafico[l.toLowerCase()] + ' ' + l),
+                                datasets: [{
+                                    label: 'Emociones',
+                                    data: dataCounts,
+                                    backgroundColor: 'rgba(0,123,255,0.2)',
+                                    borderColor: '#007bff',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: Math.max(...dataCounts, 1)
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        barChart.data.datasets[0].data = dataCounts;
+                        barChart.update();
+                    }
+
+                } catch (err) {
+                    console.error('Error cargando estadísticas de emociones:', err);
                 }
-            });
+            }
         </script>
 
         <!-- PLANES FAVORITOS -->
@@ -475,42 +553,47 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
             const container = document.getElementById('cards-container');
             const tabs = document.querySelectorAll('.profile-tab');
 
-            // Cargar por defecto
-            document.addEventListener('DOMContentLoaded', () => loadCards('favoritos'));
-
-            // Tabs
-            for (let t of tabs) {
-                t.onclick = () => {
-                    tabs.forEach(x => x.classList.remove('active'));
-                    t.classList.add('active');
-                    loadCards(t.dataset.type);
-                };
-            }
+            // Mapa de nombres de emociones → emojis
+            const moodEmojis = {
+                feliz: "😊",
+                triste: "😢",
+                enfadado: "😡",
+                sorprendido: "😲",
+                enamorado: "😍"
+            };
 
             // --------------------
             // CARGAR CARDS
             // --------------------
-            function loadCards(type) {
+            async function loadCards(type) {
                 container.innerHTML = '<div class="col-12 text-center py-5">Cargando...</div>';
-
-                fetch(`profile.php?action=list&type=${type}`)
-                    .then(r => r.json())
-                    .then(json => {
-                        if (json.status !== 'ok') return;
-                        renderCards(json.data);
+                try {
+                    const res = await fetch(`profile.php?action=list&type=${type}`, {
+                        credentials: 'same-origin'
                     });
+                    const json = await res.json();
+                    if (json.status !== 'ok') {
+                        container.innerHTML = '<div class="col-12 text-center text-danger py-5">Error al cargar</div>';
+                        return;
+                    }
+                    renderCards(json.data);
+                    updateCreatedPlansCount(); // actualiza contador
+                } catch (err) {
+                    console.error('Error cargando cards:', err);
+                    container.innerHTML = '<div class="col-12 text-center text-danger py-5">Error al cargar</div>';
+                }
             }
 
             // --------------------
             // RENDER CARDS
             // --------------------
             function renderCards(data) {
+                container.innerHTML = '';
+
                 if (!data.length) {
                     container.innerHTML = '<div class="col-12 text-center text-muted py-5">Sin resultados</div>';
                     return;
                 }
-
-                container.innerHTML = '';
 
                 data.forEach(plan => {
                     const rating = plan.rating ? Number(plan.rating).toFixed(1) : '—';
@@ -518,43 +601,110 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
                     const div = document.createElement('div');
                     div.className = 'col';
                     div.innerHTML = `
-            <div class="card plan-card-perfil shadow-sm" data-bs-toggle="modal" data-bs-target="#planModal">
-                <div class="position-relative">
-                    <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
-                    <div class="rating-badge"><i class="bi bi-star-fill"></i> ${rating}</div>
-                    <div class="card-overlay-perfil">
-                        <h5 class="card-title mb-1">${plan.title}</h5>
-                        <small>${plan.category ?? ''}</small>
-                    </div>
-                </div>
-            </div>
-        `;
+<div class="card plan-card-perfil shadow-sm" data-bs-toggle="modal" data-bs-target="#planModal">
+    <div class="position-relative">
+        <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
+        <div class="rating-badge"><i class="bi bi-star-fill"></i> ${rating}</div>
+        <div class="card-overlay-perfil">
+            <h5 class="card-title mb-1">${plan.title}</h5>
+            <small>${plan.category ?? ''}</small>
+        </div>
+    </div>
+</div>
+`;
 
-                    // Al hacer clic en la tarjeta, llenamos el modal con la estructura deseada
+                    // Modal dinámico
                     div.querySelector('.plan-card-perfil').onclick = () => {
                         const modalBody = document.getElementById('planModal').querySelector('.modal-content');
                         modalBody.innerHTML = `
-                <img src="${plan.image}" class="img-fluid" alt="${plan.title}" />
-                <div class="modal-body p-4">
-                    <h3 class="fw-bold mb-3" id="planModalLabel">${plan.title}</h3>
-                    <div class="d-flex align-items-center text-muted mb-3">
-                        <i class="bi bi-geo-alt me-2 text-primary"></i> ${plan.category ?? 'Sin categoría'}
-                    </div>
-                    <p class="text-secondary mb-4">
-                        ${plan.description ?? 'No hay descripción disponible.'}
-                    </p>
-                    <div class="d-flex justify-content-start">
-                        <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
-                        <button class="btn btn-outline-danger" type="button">Eliminar</button>
-                    </div>
-                </div>
-            `;
+<img src="${plan.image}" class="img-fluid" alt="${plan.title}" />
+<div class="modal-body p-4">
+    <h3 class="fw-bold mb-3">${plan.title}</h3>
+    <div class="d-flex align-items-center text-muted mb-3">
+        <i class="bi bi-geo-alt me-2 text-primary"></i> ${plan.category ?? 'Sin categoría'}
+    </div>
+    <p class="text-secondary mb-4">${plan.description ?? 'No hay descripción disponible.'}</p>
+    <div class="d-flex justify-content-start">
+        <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
+        <button class="btn btn-outline-danger" type="button">Eliminar</button>
+    </div>
+</div>
+`;
                     };
 
                     container.appendChild(div);
                 });
             }
+
+            // --------------------
+            // CONTADOR DE PLANES CREADOS
+            // --------------------
+            async function updateCreatedPlansCount() {
+                try {
+                    const res = await fetch('profile.php?action=count_created', {
+                        credentials: 'same-origin'
+                    });
+                    if (!res.ok) return;
+                    const json = await res.json();
+                    if (json.status !== 'ok') return;
+
+                    const el = document.getElementById('created-plans-count');
+                    if (el) el.textContent = json.count;
+                } catch (err) {
+                    console.error('Error al actualizar planes creados:', err);
+                }
+            }
+
+            // --------------------
+            // EMOCIONES MÁS VIVIDAS (máx 3)
+            // --------------------
+            async function updateTopMoods() {
+                try {
+                    const res = await fetch('profile.php?action=top_moods', {
+                        credentials: 'same-origin'
+                    });
+                    if (!res.ok) return;
+
+                    const json = await res.json();
+                    if (json.status !== 'ok') return;
+
+                    const el = document.getElementById('top-moods');
+                    if (!el) return;
+
+                    // Convertimos nombres de emociones a emojis y tomamos máximo 3
+                    const moods = json.data.map(m => moodEmojis[m.mood] ?? '').filter(Boolean).slice(0, 3);
+                    el.textContent = moods.join(' ');
+                } catch (err) {
+                    console.error('Error al cargar emociones más vividas:', err);
+                }
+            }
+
+            // --------------------
+            // EVENTOS PESTAÑAS
+            // --------------------
+            tabs.forEach(t => {
+                t.addEventListener('click', () => {
+                    tabs.forEach(x => x.classList.remove('active'));
+                    t.classList.add('active');
+                    loadCards(t.dataset.type);
+                });
+            });
+
+            // --------------------
+            // INICIALIZACIÓN
+            // --------------------
+            document.addEventListener('DOMContentLoaded', () => {
+                loadCards('favoritos');
+                updateCreatedPlansCount();
+                updateTopMoods();
+                loadMoodStats(); // <-- carga inicial de gráficos
+                setInterval(updateCreatedPlansCount, 10000);
+                setInterval(updateTopMoods, 10000);
+                setInterval(loadMoodStats, 10000); // refresco cada 10s
+            });
         </script>
+
+
 
     </main>
 

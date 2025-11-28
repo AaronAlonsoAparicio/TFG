@@ -14,7 +14,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="col-lg-12">
           <nav class="navbar navbar-expand-lg navbar-nine">
             <a class="navbar-brand" href="./index.php">
-              <img src="assets/images/white-logo.svg" alt="Logo" />
+              <img src="assets/images/logo.png" alt="Logo" width="290px"/>
             </a>
 
             <!-- BOTÓN SIDEBAR SOLO MÓVIL -->
@@ -64,7 +64,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
       <div class="sidebar-logo">
         <a href="index.php"><img src="assets/images/Logo_Mood_Planned.png" alt="Logo" /></a>
       </div>
-      <p class="text">Nombre del usuario</p>
+      <p class="text"><?= $user["name"] ?></p>
       <!-- logo -->
       <div class="sidebar-menu">
         <ul>

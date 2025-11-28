@@ -168,7 +168,7 @@ $display_main_content = !$mood_check['required'];
 <body>
   <?php include 'include-header.php'; ?>
 
-  <!--====== MODAL PARA PREGUNTAR ESTADO DE ÁNIMO (Oculto por defecto) ======-->
+<!--====== MODAL PARA PREGUNTAR ESTADO DE ÁNIMO (Oculto por defecto) ======-->
   <!-- La clase "show" y "data-bs-show" se controlan con JavaScript al cargar la página -->
   <div class="modal fade" id="moodModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="moodModalLabel" aria-hidden="true">
@@ -190,34 +190,28 @@ $display_main_content = !$mood_check['required'];
                   Feliz
                 </button>
 
-                <button type="submit" name="mood_selection" value="relajado"
-                  class="mood-btn-option btn btn-outline-info m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😌</span>
-                  Relajado
-                </button>
-
-                <button type="submit" name="mood_selection" value="estresado"
-                  class="mood-btn-option btn btn-outline-warning m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">🤯</span>
-                  Estresado
-                </button>
-
-                <button type="submit" name="mood_selection" value="aburrido"
-                  class="mood-btn-option btn btn-outline-primary m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😴</span>
-                  Aburrido
-                </button>
-
                 <button type="submit" name="mood_selection" value="triste"
-                  class="mood-btn-option btn btn-outline-danger m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😥</span>
+                  class="mood-btn-option btn btn-outline-info m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
+                  <span style="font-size: 2rem;">😢</span>
                   Triste
                 </button>
 
-                <button type="submit" name="mood_selection" value="cansado"
-                  class="mood-btn-option btn btn-outline-secondary m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😴</span>
-                  Cansado
+                <button type="submit" name="mood_selection" value="enfadado"
+                  class="mood-btn-option btn btn-outline-warning m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
+                  <span style="font-size: 2rem;">😡</span>
+                  Enfadado
+                </button>
+
+                <button type="submit" name="mood_selection" value="sorprendido"
+                  class="mood-btn-option btn btn-outline-primary m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
+                  <span style="font-size: 2rem;">😲</span>
+                  Sorprendido
+                </button>
+
+                <button type="submit" name="mood_selection" value="enamorado"
+                  class="mood-btn-option btn btn-outline-danger m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
+                  <span style="font-size: 2rem;">😍</span>
+                  Enamorado
                 </button>
 
               </div>
@@ -244,7 +238,7 @@ $display_main_content = !$mood_check['required'];
     LEFT JOIN reviews r ON p.id = r.plan_id
     GROUP BY p.id
     ORDER BY rating DESC
-    LIMIT 12
+    LIMIT 8
 ";
     $stmt2 = $pdo->query($sql2);
     $planes = $stmt2->fetchAll(PDO::FETCH_ASSOC);
@@ -295,8 +289,232 @@ $display_main_content = !$mood_check['required'];
                     </div>
                     <p class="text-secondary mb-4"><?= htmlspecialchars($plan['description']) ?></p>
                     <div class="d-flex justify-content-start">
-                      <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
-                      <button class="btn btn-outline-danger" type="button">Eliminar</button>
+                      <?php if ($plan['created_by'] == $current_user_id): ?>
+
+                        <button class="btn btn-outline-primary px-4 me-2 edit-btn"
+                          data-plan-id="<?= (int)$plan['id'] ?>"
+                          data-title="<?= htmlspecialchars($plan['title'], ENT_QUOTES) ?>"
+                          data-description="<?= htmlspecialchars($plan['description'], ENT_QUOTES) ?>"
+                          data-category="<?= htmlspecialchars($plan['category'], ENT_QUOTES) ?>"
+                          type="button">
+                          Editar
+                        </button>
+
+                        <button class="btn btn-outline-danger delete-btn"
+                          data-plan-id="<?= $plan['id'] ?>" type="button">
+                          Eliminar
+                        </button>
+
+                      <?php else: ?>
+
+                        <button class="btn btn-outline-success score-btn"
+                          data-plan-id="<?= (int)$plan['id'] ?>"
+                          type="button">
+                          Puntuar
+                        </button>
+
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        <?php endforeach; ?>
+
+      </div>
+    </div>
+
+    <div class="container" style="margin-top: 50px;">
+      <?php
+      // ---------------- GET MEJOR VALORADOS ----------------
+      // Sacamos los planes ordenados por rating promedio (descendente)
+      $sql3 = "
+      SELECT p.*, 
+            IFNULL(AVG(r.rating),0) AS rating 
+      FROM plans p
+      LEFT JOIN reviews r ON p.id = r.plan_id
+      WHERE p.category = 'Feliz'
+      GROUP BY p.id
+      ORDER BY rating DESC
+      LIMIT 8
+      ";
+
+      $stmt3 = $pdo->query($sql3);
+      $feliz = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+      ?>
+      <h1> Planes Felices</h1>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
+
+        <?php foreach ($feliz as $plan): ?>
+          <div class="col">
+            <div class="card plan-card border-0 shadow-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#planModal-<?= $plan['id'] ?>">
+              <div class="position-relative">
+                <img src="<?= htmlspecialchars($plan['image']) ?>" class="card-img-top" alt="Plan image">
+                <div class="rating-badge"><i class="bi bi-star-fill text-warning"></i> <?= number_format($plan['rating'], 1) ?></div>
+                <div class="card-overlay p-3">
+                  <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal único para esta tarjeta -->
+            <div class="modal fade" id="planModal-<?= $plan['id'] ?>" tabindex="-1" aria-labelledby="planModalLabel-<?= $plan['id'] ?>" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
+                <div class="modal-content border-0 rounded-4 overflow-hidden">
+                  <img src="<?= htmlspecialchars($plan['image']) ?>" class="img-fluid" alt="plan">
+                  <div class="modal-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h3 class="fw-bold mb-0"><?= htmlspecialchars($plan['title']) ?></h3>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-light border rounded-circle p-2 favorite-btn" data-plan-id="<?= $plan['id'] ?>">
+                          <i class="bi <?= is_favorite($current_user_id, $plan['id'], $pdo) ? 'bi-heart-fill text-danger' : 'bi-heart text-danger' ?>"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-light border rounded-circle p-2 save-btn" data-plan-id="<?= $plan['id'] ?>">
+                          <i class="bi <?= is_saved($current_user_id, $plan['id'], $pdo) ? 'bi-bookmark-fill text-primary' : 'bi-bookmark text-primary' ?>"></i>
+                        </button>
+
+
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center text-muted mb-3">
+                      <i class="bi bi-geo-alt me-2"></i> <?= htmlspecialchars($plan['category']) ?>
+                    </div>
+                    <p class="text-secondary mb-4"><?= htmlspecialchars($plan['description']) ?></p>
+                    <div class="d-flex justify-content-start">
+                      <?php if ($plan['created_by'] == $current_user_id): ?>
+
+                        <button class="btn btn-outline-primary px-4 me-2 edit-btn"
+                          data-plan-id="<?= (int)$plan['id'] ?>"
+                          data-title="<?= htmlspecialchars($plan['title'], ENT_QUOTES) ?>"
+                          data-description="<?= htmlspecialchars($plan['description'], ENT_QUOTES) ?>"
+                          data-category="<?= htmlspecialchars($plan['category'], ENT_QUOTES) ?>"
+                          type="button">
+                          Editar
+                        </button>
+
+                        <button class="btn btn-outline-danger delete-btn"
+                          data-plan-id="<?= $plan['id'] ?>" type="button">
+                          Eliminar
+                        </button>
+
+                      <?php else: ?>
+
+                        <button class="btn btn-outline-success score-btn"
+                          data-plan-id="<?= (int)$plan['id'] ?>"
+                          type="button">
+                          Puntuar
+                        </button>
+
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        <?php endforeach; ?>
+
+      </div>
+    </div>
+    <div class="container" style="margin-top: 50px;">
+      <?php
+      // ---------------- GET MEJOR VALORADOS ----------------
+      // Sacamos los planes ordenados por rating promedio (descendente)
+      $sql4 = "
+      SELECT p.*, 
+            IFNULL(AVG(r.rating),0) AS rating 
+      FROM plans p
+      LEFT JOIN reviews r ON p.id = r.plan_id
+      WHERE p.category = 'Triste'
+      GROUP BY p.id
+      ORDER BY rating DESC
+      LIMIT 8
+      ";
+
+      $stmt4 = $pdo->query($sql4);
+      $triste = $stmt4->fetchAll(PDO::FETCH_ASSOC);
+      ?>
+      <h1> Planes Tristes</h1>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
+
+        <?php foreach ($triste as $plan): ?>
+          <div class="col">
+            <div class="card plan-card border-0 shadow-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#planModal-<?= $plan['id'] ?>">
+              <div class="position-relative">
+                <img src="<?= htmlspecialchars($plan['image']) ?>" class="card-img-top" alt="Plan image">
+                <div class="rating-badge"><i class="bi bi-star-fill text-warning"></i> <?= number_format($plan['rating'], 1) ?></div>
+                <div class="card-overlay p-3">
+                  <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal único para esta tarjeta -->
+            <div class="modal fade" id="planModal-<?= $plan['id'] ?>" tabindex="-1" aria-labelledby="planModalLabel-<?= $plan['id'] ?>" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
+                <div class="modal-content border-0 rounded-4 overflow-hidden">
+                  <img src="<?= htmlspecialchars($plan['image']) ?>" class="img-fluid" alt="plan">
+                  <div class="modal-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h3 class="fw-bold mb-0"><?= htmlspecialchars($plan['title']) ?></h3>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-light border rounded-circle p-2 favorite-btn" data-plan-id="<?= $plan['id'] ?>">
+                          <i class="bi <?= is_favorite($current_user_id, $plan['id'], $pdo) ? 'bi-heart-fill text-danger' : 'bi-heart text-danger' ?>"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-light border rounded-circle p-2 save-btn" data-plan-id="<?= $plan['id'] ?>">
+                          <i class="bi <?= is_saved($current_user_id, $plan['id'], $pdo) ? 'bi-bookmark-fill text-primary' : 'bi-bookmark text-primary' ?>"></i>
+                        </button>
+
+
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center text-muted mb-3">
+                      <i class="bi bi-geo-alt me-2"></i> <?= htmlspecialchars($plan['category']) ?>
+                    </div>
+                    <p class="text-secondary mb-4"><?= htmlspecialchars($plan['description']) ?></p>
+                    <div class="d-flex justify-content-start">
+                      <?php if ($plan['created_by'] == $current_user_id): ?>
+
+                        <button class="btn btn-outline-primary px-4 me-2 edit-btn"
+                          data-plan-id="<?= (int)$plan['id'] ?>"
+                          data-title="<?= htmlspecialchars($plan['title'], ENT_QUOTES) ?>"
+                          data-description="<?= htmlspecialchars($plan['description'], ENT_QUOTES) ?>"
+                          data-category="<?= htmlspecialchars($plan['category'], ENT_QUOTES) ?>"
+                          type="button">
+                          Editar
+                        </button>
+
+                        <button class="btn btn-outline-danger delete-btn"
+                          data-plan-id="<?= $plan['id'] ?>" type="button">
+                          Eliminar
+                        </button>
+
+                      <?php else: ?>
+
+                        <button class="btn btn-outline-success score-btn"
+                          data-plan-id="<?= (int)$plan['id'] ?>"
+                          type="button">
+                          Puntuar
+                        </button>
+
+                      <?php endif; ?>
                     </div>
                   </div>
                 </div>
@@ -310,6 +528,70 @@ $display_main_content = !$mood_check['required'];
       </div>
     </div>
     <!--====== END Planes ======-->
+  </div>
+  <!-- Modal editar plan -->
+  <div class="modal fade" id="editPlanModal" tabindex="-1" aria-labelledby="editPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg p-3 ">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="editPlanModalLabel">Editar Plan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body ">
+          <form id="editPlanForm">
+            <input type="hidden" name="plan_id" id="edit-plan-id">
+            <div class="mb-3 form-group smooth">
+              <label for="edit-title" class="form-label">Título</label>
+              <input type="text" class="form-control input-field" id="edit-title" name="title" required>
+            </div>
+            <div class="mb-3 form-group smooth">
+              <label for="edit-description" class="form-label">Descripción</label>
+              <textarea class="form-control input-field textarea" id="edit-description" name="description" rows="3" placeholder="Describe tu plan..." required></textarea>
+            </div>
+            <div class="mb-3 form-group smooth">
+              <label for="edit-category" class="form-label">Categoría</label>
+              <select name="category" class="input-field select" id="edit-category" required>
+                <option>Feliz</option>
+                <option>Triste</option>
+                <option>Enfadado</option>
+                <option>Sorprendido</option>
+                <option>Enamorado</option>
+              </select>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-outline-danger me-2" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn-submit">Guardar cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal de puntuación -->
+  <div class="modal fade" id="scoreModal" tabindex="-1" aria-labelledby="scoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold" id="scoreModalLabel">Puntuar Plan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="mb-3">Selecciona tu puntuación:</p>
+          <div id="star-container" class="d-flex justify-content-center gap-2">
+            <i class="bi bi-star fs-2 star" data-value="1"></i>
+            <i class="bi bi-star fs-2 star" data-value="2"></i>
+            <i class="bi bi-star fs-2 star" data-value="3"></i>
+            <i class="bi bi-star fs-2 star" data-value="4"></i>
+            <i class="bi bi-star fs-2 star" data-value="5"></i>
+          </div>
+          <input type="hidden" id="selected-rating" value="0">
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="submitRating" class="btn btn-primary">Enviar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <?php include 'include-footer.php'; ?>
@@ -384,6 +666,157 @@ $display_main_content = !$mood_check['required'];
         });
       });
 
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!confirm("¿Seguro que quieres eliminar este plan?")) return;
+
+        const planId = btn.dataset.planId;
+
+        fetch('../src/delete_plan.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'plan_id=' + planId
+          })
+          .then(async res => {
+            const text = await res.text();
+            try {
+              const data = JSON.parse(text);
+              if (data.success) {
+                alert(data.message || "Plan eliminado");
+                location.reload();
+              } else {
+                alert(data.message || "Error al eliminar");
+              }
+            } catch {
+              console.error("Respuesta no JSON:", text);
+              alert("Error inesperado. Ver consola Network para detalles.");
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Error de conexión al servidor.");
+          });
+
+      });
+    });
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+
+        const planId = btn.dataset.planId;
+        const title = btn.dataset.title;
+        const description = btn.dataset.description;
+        const category = btn.dataset.category;
+
+        document.getElementById('edit-plan-id').value = planId;
+        document.getElementById('edit-title').value = title;
+        document.getElementById('edit-description').value = description;
+        document.getElementById('edit-category').value = category;
+
+        const editModalEl = document.getElementById('editPlanModal');
+        const editModal = new bootstrap.Modal(editModalEl);
+        editModal.show();
+      });
+    });
+    document.getElementById('editPlanForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+
+      fetch('../src/edit_plan.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(async res => {
+          const text = await res.text();
+          try {
+            const data = JSON.parse(text);
+            if (data.success) {
+              alert(data.message || "Plan actualizado");
+              location.reload();
+            } else {
+              alert(data.message || "No se pudo actualizar el plan");
+            }
+          } catch {
+            console.error("Respuesta no JSON:", text);
+            alert("Error inesperado. Revisa la consola.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Error de conexión al servidor");
+        });
+    });
+    let currentPlanId = null;
+
+    document.querySelectorAll('.score-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        currentPlanId = btn.dataset.planId;
+
+        // Resetear estrellas
+        document.querySelectorAll('#star-container .star').forEach(star => {
+          star.classList.remove('bi-star-fill');
+          star.classList.add('bi-star');
+        });
+        document.getElementById('selected-rating').value = 0;
+
+        const scoreModalEl = document.getElementById('scoreModal');
+        const scoreModal = new bootstrap.Modal(scoreModalEl);
+        scoreModal.show();
+      });
+    });
+
+    // Manejo de clic en estrellas
+    document.querySelectorAll('#star-container .star').forEach(star => {
+      star.addEventListener('click', function() {
+        const value = parseInt(this.dataset.value);
+        document.getElementById('selected-rating').value = value;
+
+        // Pintar estrellas hasta el valor seleccionado
+        document.querySelectorAll('#star-container .star').forEach(s => {
+          const v = parseInt(s.dataset.value);
+          if (v <= value) {
+            s.classList.remove('bi-star');
+            s.classList.add('bi-star-fill', 'text-warning');
+          } else {
+            s.classList.remove('bi-star-fill', 'text-warning');
+            s.classList.add('bi-star');
+          }
+        });
+      });
+    });
+
+    // Enviar puntuación
+    document.getElementById('submitRating').addEventListener('click', function() {
+      const rating = document.getElementById('selected-rating').value;
+      if (rating == 0) {
+        alert('Por favor selecciona una puntuación.');
+        return;
+      }
+
+      fetch('../src/submit_rating.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `plan_id=${currentPlanId}&rating=${rating}`
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Puntuación enviada!');
+            location.reload(); // refresca la página para actualizar el rating
+          } else {
+            alert('Error: ' + data.message);
+          }
+        })
+        .catch(err => console.error(err));
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
