@@ -15,9 +15,6 @@ $db_name = 'moodplanned';
 $mood_table = 'user_mood_tracker';
 
 // Obtener usuario actual (DEBES reemplazarlo con tu sistema real de login)
-// Ejemplo correcto usando sesión:
-// session_start();
-// $current_user_id = $_SESSION['user_id'];
 $current_user_id = $_SESSION["user_id"]; // <-- Valor temporal para pruebas. Debe ser INT.
 
 // Conexión a la base de datos
@@ -168,60 +165,70 @@ $display_main_content = !$mood_check['required'];
 <body>
   <?php include 'include-header.php'; ?>
 
-<!--====== MODAL PARA PREGUNTAR ESTADO DE ÁNIMO (Oculto por defecto) ======-->
+  <!--====== MODAL PARA PREGUNTAR ESTADO DE ÁNIMO (Oculto por defecto) ======-->
   <!-- La clase "show" y "data-bs-show" se controlan con JavaScript al cargar la página -->
-  <div class="modal fade" id="moodModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  <div class="modal fade custom-mood-modal" id="moodModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="moodModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-dialog modal-dialog-centered custom-mood-dialog">
       <div class="modal-content border-0 rounded-4 shadow-lg p-3">
         <form method="POST" action="dashboard.php">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold" id="moodModalLabel">¡Bienvenido! ¿Cómo te sientes hoy?</h5>
+
+          <div class="modal-header border-0 pb-0 custom-mood-header d-flex justify-content-center align-items-center">
+            <h5 class="modal-title fw-bold text-center" id="moodModalLabel">¿Cómo te sientes hoy?</h5>
           </div>
+
+
           <div class="modal-body text-center pt-2">
-            <p class="text-secondary mb-4">Selecciona el estado que mejor te represente:</p>
+            <p class="text-secondary mb-4 custom-mood-text">Selecciona el estado que mejor te represente:</p>
+
             <div id="mood-prompt-content">
-              <!-- Botones de estado de ánimo se inyectan aquí -->
               <div class="d-flex justify-content-center flex-wrap">
 
                 <button type="submit" name="mood_selection" value="feliz"
-                  class="mood-btn-option btn btn-outline-success m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😊</span>
+                  class="mood-btn-option btn m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center custom-mood-btn btn-mood-feliz">
+                  <span>😊</span>
                   Feliz
                 </button>
 
                 <button type="submit" name="mood_selection" value="triste"
-                  class="mood-btn-option btn btn-outline-info m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😢</span>
+                  class="mood-btn-option btn m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center custom-mood-btn btn-mood-triste">
+                  <span>😢</span>
                   Triste
                 </button>
 
                 <button type="submit" name="mood_selection" value="enfadado"
-                  class="mood-btn-option btn btn-outline-warning m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😡</span>
+                  class="mood-btn-option btn m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center custom-mood-btn btn-mood-enfadado">
+                  <span>😡</span>
                   Enfadado
                 </button>
 
                 <button type="submit" name="mood_selection" value="sorprendido"
-                  class="mood-btn-option btn btn-outline-primary m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😲</span>
+                  class="mood-btn-option btn m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center custom-mood-btn btn-mm-sorprendido">
+                  <span>😲</span>
                   Sorprendido
                 </button>
 
                 <button type="submit" name="mood_selection" value="enamorado"
-                  class="mood-btn-option btn btn-outline-danger m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center">
-                  <span style="font-size: 2rem;">😍</span>
+                  class="mood-btn-option btn m-2 py-3 px-4 rounded-3 d-flex flex-column align-items-center custom-mood-btn btn-mood-enamorado">
+                  <span>😍</span>
                   Enamorado
                 </button>
 
               </div>
             </div>
-            <p class="text-sm text-muted mt-3">Solo te preguntaremos una vez cada 24 horas.</p>
+
+            <p class="text-sm text-muted mt-3 custom-mood-footer-text">
+              Solo te preguntaremos una vez cada 24 horas.
+            </p>
           </div>
+
         </form>
       </div>
     </div>
+
   </div>
+
   <!--====== FIN MODAL ESTADO DE ÁNIMO ======-->
 
 
@@ -248,6 +255,28 @@ $display_main_content = !$mood_check['required'];
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
 
         <?php foreach ($planes as $plan): ?>
+          <?php
+          $direccion = $plan['direccion']; // "Calle Mayor 25, 28013 Madrid, España"
+          $partes = explode(',', $direccion);
+
+          // Tomamos la penúltima parte
+          $ciudadConCodigo = count($partes) >= 2 ? trim($partes[count($partes) - 2]) : $direccion;
+
+          // Eliminamos posibles números al inicio (código postal)
+          $ciudad = preg_replace('/^\d+\s*/', '', $ciudadConCodigo);
+          ?>
+          <?php
+          $iconos_categoria = [
+            'Feliz'      => '😊',
+            'Triste'     => '😢',
+            'Enfadado'   => '😡',
+            'Sorprendido' => '😲',
+            'Enamorado'  => '😍'
+          ];
+
+          $emoji = $iconos_categoria[$plan['category']] ?? '🏷️';
+          ?>
+
           <div class="col">
             <div class="card plan-card border-0 shadow-sm"
               data-bs-toggle="modal"
@@ -258,7 +287,8 @@ $display_main_content = !$mood_check['required'];
                 <div class="card-overlay p-3">
                   <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
                   <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
+                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($ciudad) ?></div>
+                    <div class="text-muted small"><?= $emoji ?></div>
                   </div>
                 </div>
               </div>
@@ -266,7 +296,7 @@ $display_main_content = !$mood_check['required'];
 
             <!-- Modal único para esta tarjeta -->
             <div class="modal fade" id="planModal-<?= $plan['id'] ?>" tabindex="-1" aria-labelledby="planModalLabel-<?= $plan['id'] ?>" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones">
+              <div class="modal-dialog modal-dialog-centered modal-lg modal-dimensiones" >
                 <div class="modal-content border-0 rounded-4 overflow-hidden">
                   <img src="<?= htmlspecialchars($plan['image']) ?>" class="img-fluid" alt="plan">
                   <div class="modal-body p-4">
@@ -285,7 +315,8 @@ $display_main_content = !$mood_check['required'];
                       </div>
                     </div>
                     <div class="d-flex align-items-center text-muted mb-3">
-                      <i class="bi bi-geo-alt me-2"></i> <?= htmlspecialchars($plan['category']) ?>
+                      <i class="bi bi-geo-alt me-2"></i> <?= htmlspecialchars($plan['direccion']) ?>
+                      <div class="text-muted small ms-auto"><?= $emoji ?></div>
                     </div>
                     <p class="text-secondary mb-4"><?= htmlspecialchars($plan['description']) ?></p>
                     <div class="d-flex justify-content-start">
@@ -349,6 +380,16 @@ $display_main_content = !$mood_check['required'];
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
 
         <?php foreach ($feliz as $plan): ?>
+          <?php
+          $direccion = $plan['direccion']; // "Calle Mayor 25, 28013 Madrid, España"
+          $partes = explode(',', $direccion);
+
+          // Tomamos la penúltima parte
+          $ciudadConCodigo = count($partes) >= 2 ? trim($partes[count($partes) - 2]) : $direccion;
+
+          // Eliminamos posibles números al inicio (código postal)
+          $ciudad = preg_replace('/^\d+\s*/', '', $ciudadConCodigo);
+          ?>
           <div class="col">
             <div class="card plan-card border-0 shadow-sm"
               data-bs-toggle="modal"
@@ -359,7 +400,8 @@ $display_main_content = !$mood_check['required'];
                 <div class="card-overlay p-3">
                   <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
                   <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
+                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($ciudad) ?></div>
+                    <div><span class="emoji">😊</span></div>
                   </div>
                 </div>
               </div>
@@ -449,6 +491,16 @@ $display_main_content = !$mood_check['required'];
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="cards-container">
 
         <?php foreach ($triste as $plan): ?>
+          <?php
+          $direccion = $plan['direccion']; // "Calle Mayor 25, 28013 Madrid, España"
+          $partes = explode(',', $direccion);
+
+          // Tomamos la penúltima parte
+          $ciudadConCodigo = count($partes) >= 2 ? trim($partes[count($partes) - 2]) : $direccion;
+
+          // Eliminamos posibles números al inicio (código postal)
+          $ciudad = preg_replace('/^\d+\s*/', '', $ciudadConCodigo);
+          ?>
           <div class="col">
             <div class="card plan-card border-0 shadow-sm"
               data-bs-toggle="modal"
@@ -459,7 +511,8 @@ $display_main_content = !$mood_check['required'];
                 <div class="card-overlay p-3">
                   <h5 class="card-title mb-1"><?= htmlspecialchars($plan['title']) ?></h5>
                   <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($plan['category']) ?></div>
+                    <div class="text-muted small"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($ciudad) ?></div>
+                    <div><span class="emoji">😢</span></div>
                   </div>
                 </div>
               </div>
@@ -568,9 +621,9 @@ $display_main_content = !$mood_check['required'];
     </div>
   </div>
   <!-- Modal de puntuación -->
-  <div class="modal fade" id="scoreModal" tabindex="-1" aria-labelledby="scoreModalLabel" aria-hidden="true">
+  <div  class="modal fade" id="scoreModal" tabindex="-1" aria-labelledby="scoreModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 rounded-4 shadow-lg p-3">
+      <div class="modal-content border-0 rounded-4 shadow-lg p-3" style=" background-color: rgba(232, 216, 216, 0.963);">
         <div class="modal-header border-0">
           <h5 class="modal-title fw-bold" id="scoreModalLabel">Puntuar Plan</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -586,9 +639,9 @@ $display_main_content = !$mood_check['required'];
           </div>
           <input type="hidden" id="selected-rating" value="0">
         </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" id="submitRating" class="btn btn-primary">Enviar</button>
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="submitRating" class="btn-submit">Enviar</button>
         </div>
       </div>
     </div>

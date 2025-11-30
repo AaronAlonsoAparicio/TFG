@@ -29,35 +29,48 @@ if (isset($_GET['action']) && $_GET['action'] === 'list') {
 
     if ($type === 'favoritos') {
         $sql = "SELECT p.*, 
-                        (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating 
+                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
+                       EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
+                       EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
                 FROM favorites f
                 JOIN plans p ON f.plan_id = p.id
                 WHERE f.user_id = ?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId]);
+        $stmt->execute([$userId, $userId, $userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'publicaciones') {
         $sql = "SELECT p.*, 
-                        (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
+                       EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
+                       EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
                 FROM plans p
                 WHERE p.created_by = ?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId]);
+        $stmt->execute([$userId, $userId, $userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } elseif ($type === 'guardados') {
         $sql = "SELECT p.*, 
-                        (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating
+                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
+                       EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
+                       EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
                 FROM saved_plans s
                 JOIN plans p ON s.plan_id = p.id
                 WHERE s.user_id = ?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId]);
+        $stmt->execute([$userId, $userId, $userId]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Convertimos los valores a booleanos para JS
+    foreach ($data as &$plan) {
+        $plan['is_favorite'] = (bool)$plan['is_favorite'];
+        $plan['is_saved'] = (bool)$plan['is_saved'];
     }
 
     echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
 
 // ---------------------- CONTADOR DE PLANES CREADOS ----------------------
 if (isset($_GET['action']) && $_GET['action'] === 'count_created') {
@@ -596,45 +609,137 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 }
 
                 data.forEach(plan => {
+                    const emoji = moodEmojis[plan.category?.toLowerCase()] || "🏷️";
                     const rating = plan.rating ? Number(plan.rating).toFixed(1) : '—';
+                    const direccion = `${plan.direccion}`;
+                    const partes = direccion.split(',');
+                    const ciudadConCodigo = partes.length >= 2 ? partes[partes.length - 2].trim() : direccion;
+                    const ciudad = ciudadConCodigo.replace(/^\d+\s*/, '');
 
                     const div = document.createElement('div');
                     div.className = 'col';
                     div.innerHTML = `
-<div class="card plan-card-perfil shadow-sm" data-bs-toggle="modal" data-bs-target="#planModal">
-    <div class="position-relative">
-        <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
-        <div class="rating-badge"><i class="bi bi-star-fill"></i> ${rating}</div>
-        <div class="card-overlay-perfil">
-            <h5 class="card-title mb-1">${plan.title}</h5>
-            <small>${plan.category ?? ''}</small>
+        <div class="card plan-card-perfil shadow-sm" data-plan-id="${plan.id}" data-bs-toggle="modal" data-bs-target="#planModal">
+            <div class="position-relative">
+                <img src="${plan.image}" class="card-img-top" alt="${plan.title}">
+                <div class="rating-badge"><i class="bi bi-star-fill"></i> ${rating}</div>
+                <div class="card-overlay-perfil">
+                    <h5 class="card-title mb-1">${plan.title}</h5>
+                    <small>${ciudad ?? ''}</small>
+                </div>
+                <div class="card-icons position-absolute top-2 end-2 d-flex gap-2">
+                    <i class="bi ${plan.is_favorite ? 'bi-heart-fill text-danger' : 'bi-heart text-danger'} favorite-icon" data-plan-id="${plan.id}"></i>
+                    <i class="bi ${plan.is_saved ? 'bi-bookmark-fill text-primary' : 'bi-bookmark text-primary'} save-icon" data-plan-id="${plan.id}"></i>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-`;
+        `;
 
                     // Modal dinámico
                     div.querySelector('.plan-card-perfil').onclick = () => {
                         const modalBody = document.getElementById('planModal').querySelector('.modal-content');
                         modalBody.innerHTML = `
-<img src="${plan.image}" class="img-fluid" alt="${plan.title}" />
-<div class="modal-body p-4">
-    <h3 class="fw-bold mb-3">${plan.title}</h3>
-    <div class="d-flex align-items-center text-muted mb-3">
-        <i class="bi bi-geo-alt me-2 text-primary"></i> ${plan.category ?? 'Sin categoría'}
-    </div>
-    <p class="text-secondary mb-4">${plan.description ?? 'No hay descripción disponible.'}</p>
-    <div class="d-flex justify-content-start">
-        <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
-        <button class="btn btn-outline-danger" type="button">Eliminar</button>
-    </div>
-</div>
-`;
+            <img src="${plan.image}" class="img-fluid" alt="${plan.title}" />
+            <div class="modal-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="fw-bold mb-0">${plan.title}</h3>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light border rounded-circle p-2 favorite-btn" data-plan-id="${plan.id}">
+                            <i class="bi ${plan.is_favorite ? 'bi-heart-fill text-danger':'bi-heart text-danger'}"></i>
+                        </button>
+                        <button class="btn btn-light border rounded-circle p-2 save-btn" data-plan-id="${plan.id}">
+                            <i class="bi ${plan.is_saved ? 'bi-bookmark-fill text-primary':'bi-bookmark text-primary'}"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center text-muted mb-3">
+                    <i class="bi bi-geo-alt me-2"></i> ${plan.direccion}
+                    <div class="text-muted small ms-auto">${emoji}</div>
+                </div>
+                <p class="text-secondary mb-4">${plan.description ?? 'No hay descripción disponible.'}</p>
+                <div class="d-flex justify-content-start">
+                    <button class="btn btn-outline-primary px-4 me-2" type="button">Editar</button>
+                    <button class="btn btn-outline-danger" type="button">Eliminar</button>
+                </div>
+            </div>
+            `;
                     };
 
                     container.appendChild(div);
                 });
             }
+
+
+            // --------------------
+            // DELEGACIÓN DE EVENTOS PARA BOTONES DEL MODAL
+            // --------------------
+            const modal = document.getElementById('planModal');
+
+            modal.addEventListener('click', e => {
+                const btn = e.target.closest('.favorite-btn, .save-btn');
+                if (!btn) return;
+                e.stopPropagation();
+
+                const planId = btn.dataset.planId;
+
+                const updateCardIcon = (selector, isActive) => {
+                    const icon = container.querySelector(`${selector}[data-plan-id="${planId}"]`);
+                    if (!icon) return;
+                    if (selector.includes('favorite')) {
+                        icon.classList.toggle('bi-heart-fill', isActive);
+                        icon.classList.toggle('bi-heart', !isActive);
+                        icon.classList.toggle('text-danger', isActive);
+                    } else {
+                        icon.classList.toggle('bi-bookmark-fill', isActive);
+                        icon.classList.toggle('bi-bookmark', !isActive);
+                        icon.classList.toggle('text-primary', isActive);
+                    }
+                };
+
+                // Favorito
+                if (btn.classList.contains('favorite-btn')) {
+                    fetch('../src/toggle_favorite.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `plan_id=${planId}`
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            const icon = btn.querySelector('i');
+                            const isAdded = data.status === 'added';
+                            icon.classList.toggle('bi-heart-fill', isAdded);
+                            icon.classList.toggle('bi-heart', !isAdded);
+                            icon.classList.toggle('text-danger', isAdded);
+
+                            // Actualizar icono en la card principal
+                            updateCardIcon('.favorite-icon', isAdded);
+                        }
+                    });
+                }
+
+                // Guardado
+                if (btn.classList.contains('save-btn')) {
+                    fetch('../src/toggle_saved.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `plan_id=${planId}`
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            const icon = btn.querySelector('i');
+                            const isAdded = data.status === 'added';
+                            icon.classList.toggle('bi-bookmark-fill', isAdded);
+                            icon.classList.toggle('bi-bookmark', !isAdded);
+
+                            // Actualizar icono en la card principal
+                            updateCardIcon('.save-icon', isAdded);
+                        }
+                    });
+                }
+            });
+
 
             // --------------------
             // CONTADOR DE PLANES CREADOS

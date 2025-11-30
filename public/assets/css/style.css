@@ -1358,6 +1358,149 @@ select option:hover {
 }
 
 
+    /* ============================
+   Modal De como te encuentras cada 24 horas
+=============================== */
+
+    /* Fondo del modal */
+    .modal.custom-mood-modal {
+      backdrop-filter: blur(4px);
+    }
+
+    /* Contenedor principal */
+    .modal.custom-mood-modal .modal-dialog.custom-mood-dialog .modal-content {
+      border-radius: 1rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      /* Muy similar a cards elegantes */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      animation: moodFadeIn 0.25s ease-out;
+    }
+
+    /* Animación suave */
+    @keyframes moodFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Header */
+    .custom-mood-header h5 {
+      font-weight: 600;
+      color: #2d3748;
+      /* Gris oscuro similar a Bootstrap */
+      font-size: 1.25rem;
+    }
+
+    /* Texto guía */
+    .custom-mood-text {
+      color: #6c757d;
+      /* Gris estándar de Bootstrap */
+      font-size: 0.95rem;
+    }
+
+    /* ============================
+   Botones coherentes con Bootstrap
+=============================== */
+
+    .custom-mood-btn {
+      border-radius: .75rem !important;
+      border-width: 2px;
+      background: #fff;
+      padding: 0.9rem 1.4rem;
+      transition: 0.15s ease-in-out;
+      font-weight: 500;
+    }
+
+    /* Hover con estilo Bootstrap */
+    .custom-mood-btn:hover {
+      background: #f8f9fa;
+      /* Hover suave tipo btn-outline Bootstrap */
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.10);
+    }
+
+    /* Tamaño emoji */
+    .custom-mood-btn span {
+      font-size: 2.1rem;
+      margin-bottom: .25rem;
+    }
+
+    /* Texto pequeño inferior */
+    .custom-mood-footer-text {
+      color: #6c757d;
+      font-size: 0.8rem;
+    }
+
+    /* ============================
+   OUTLINES PERSONALIZADOS
+=============================== */
+
+    /* 😊 Feliz - Verde lima */
+    .btn-mood-feliz {
+      border-color: #8bc34a;
+      color: #689f38;
+    }
+
+    .btn-mood-feliz:hover {
+      background: #8bc34a22;
+      border-color: #7cb342;
+      color: #558b2f;
+    }
+
+    /* 😢 Triste - Azul grisáceo */
+    .btn-mood-triste {
+      border-color: #5c6bc0;
+      color: #3949ab;
+    }
+
+    .btn-mood-triste:hover {
+      background: #5c6bc022;
+      border-color: #3f51b5;
+      color: #2c3a9c;
+    }
+
+    /* 😡 Enfadado - Rojo intenso */
+    .btn-mood-enfadado {
+      border-color: #e53935;
+      color: #c62828;
+    }
+
+    .btn-mood-enfadado:hover {
+      background: #e5393522;
+      border-color: #d32f2f;
+      color: #b71c1c;
+    }
+
+    /* 😲 Sorprendido - Púrpura vibrante */
+    .btn-mm-sorprendido {
+      border-color: #ab47bc;
+      color: #8e24aa;
+    }
+
+    .btn-mm-sorprendido:hover {
+      background: #ab47bc22;
+      border-color: #9c27b0;
+      color: #6a1b9a;
+    }
+
+    /* 😍 Enamorado - Rosa vibrante */
+    .btn-mood-enamorado {
+      border-color: #ec407a;
+      color: #d81b60;
+    }
+
+    .btn-mood-enamorado:hover {
+      background: #ec407a22;
+      border-color: #e91e63;
+      color: #ad1457;
+    }
 /* FOOTER */
 
 /* Fondo degradado animado */
