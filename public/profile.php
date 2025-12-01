@@ -329,42 +329,45 @@ $bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header-profile">
-                    <h5 class="modal-title-profile" id="editProfileModalLabel">Editar perfil</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body-profile">
-                    <form action="#" id="editProfileForm">
-                        <div class="mb-3">
-                            <label for="bannerInput" class="form-label">Banner</label>
-                            <input class="form-control" type="file" id="bannerInput">
-                            <div class="mt-3">
-                                <img src="" alt="Banner" id="bannerPreview">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="perfilInput" class="form-label">Foto de perfil</label>
-                            <input class="form-control" type="file" id="perfilInput">
-                            <div class="mt-3">
-                                <img src="" alt="Foto de perfil" id="perfilPreview">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="descripcionInput" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcionInput" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer-profile">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" onclick="saveProfile()">Guardar cambios</button>
-                </div>
+   <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header-profile">
+        <h5 class="modal-title-profile" id="editProfileModalLabel">Editar perfil</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body-profile">
+        <form id="editProfileForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="bannerInput" class="form-label">Banner</label>
+            <input type="file" name="banner" id="bannerInput" class="form-control" accept="image/*">
+            <div class="mt-3">
+              <img src="<?= htmlspecialchars($user['banner'] ?? '') ?>" id="bannerPreview" style="width:100%; max-height:200px; object-fit:cover;">
             </div>
-        </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="avatarInput" class="form-label">Foto de perfil</label>
+            <input type="file" name="avatar" id="avatarInput" class="form-control" accept="image/*">
+            <div class="mt-3">
+              <img src="<?= htmlspecialchars($user['profile_image'] ?? '') ?>" id="avatarPreview" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #6d28d9;">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="bioInput" class="form-label">Descripción</label>
+            <textarea name="bio" id="bioInput" class="form-control" rows="3"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer-profile">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" onclick="guardarPerfil()">Guardar cambios</button>
+      </div>
     </div>
+  </div>
+</div>
+
 
     <main class="container mt-5 pt-5">
 
@@ -417,6 +420,54 @@ $bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
         <script>
+            function guardarPerfil() {
+    const form = document.getElementById('editProfileForm');
+    const formData = new FormData(form);
+
+    fetch('update_profile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            alert('Perfil actualizado correctamente');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al actualizar el perfil');
+    });
+}
+
+// Previews en tiempo real
+document.getElementById('bannerInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => document.getElementById('bannerPreview').src = reader.result;
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('avatarInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => document.getElementById('avatarPreview').src = reader.result;
+        reader.readAsDataURL(file);
+    }
+});
+
+
+
+
+
+
+
             const moodLabels = ['Feliz', 'Triste', 'Enfadado', 'Sorprendido', 'Enamorado'];
             const moodEmojisGrafico = {
                 'feliz': "😊",
