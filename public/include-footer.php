@@ -25,7 +25,6 @@
         <h5 class="text-uppercase fw-semibold mb-3">Síguenos</h5>
         <div class="d-flex justify-content-center justify-content-md-end">
           <a href="#" class="social-link me-3"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="social-link me-3"><i class="bi bi-facebook"></i></a>
           <a href="#" class="social-link me-3"><i class="bi bi-twitter-x"></i></a>
           <a href="#" class="social-link"><i class="bi bi-tiktok"></i></a>
         </div>
