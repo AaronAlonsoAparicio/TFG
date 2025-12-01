@@ -368,7 +368,6 @@ $bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
   </div>
 </div>
 
-
     <main class="container mt-5 pt-5">
 
         <!-- ESTADÍSTICAS -->
@@ -420,54 +419,6 @@ $bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
         <script>
-            function guardarPerfil() {
-    const form = document.getElementById('editProfileForm');
-    const formData = new FormData(form);
-
-    fetch('update_profile.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'ok') {
-            alert('Perfil actualizado correctamente');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al actualizar el perfil');
-    });
-}
-
-// Previews en tiempo real
-document.getElementById('bannerInput').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = () => document.getElementById('bannerPreview').src = reader.result;
-        reader.readAsDataURL(file);
-    }
-});
-
-document.getElementById('avatarInput').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = () => document.getElementById('avatarPreview').src = reader.result;
-        reader.readAsDataURL(file);
-    }
-});
-
-
-
-
-
-
-
             const moodLabels = ['Feliz', 'Triste', 'Enfadado', 'Sorprendido', 'Enamorado'];
             const moodEmojisGrafico = {
                 'feliz': "😊",
@@ -861,6 +812,47 @@ document.getElementById('avatarInput').addEventListener('change', e => {
                     console.error('Error al actualizar planes realizados:', err);
                 }
             }
+
+            async function guardarPerfil() {
+    const form = document.getElementById('editProfileForm');
+    const formData = new FormData(form);
+
+    try {
+        const res = await fetch('edit_profile.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
+
+        const json = await res.json();
+
+        if (json.status === 'ok') {
+            alert('Perfil actualizado correctamente');
+
+            // Actualizar imágenes del perfil en la página sin recargar
+            const avatarFile = form.avatar.files[0];
+            if (avatarFile) {
+                document.querySelector('.profile-overlay img').src = URL.createObjectURL(avatarFile);
+            }
+            const bannerFile = form.banner.files[0];
+            if (bannerFile) {
+                const bannerPreview = document.getElementById('bannerPreview');
+                if (bannerPreview) bannerPreview.src = URL.createObjectURL(bannerFile);
+            }
+
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+            modal.hide();
+
+        } else {
+            alert('Error: ' + json.message);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error al actualizar el perfil');
+    }
+}
+
 
 
             // --------------------
