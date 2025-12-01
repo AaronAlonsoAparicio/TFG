@@ -199,7 +199,7 @@
                                             <div class="d-flex justify-content-start">
                                                 ${plan.created_by == currentUserId ?
                                                     `<button class="btn btn-outline-primary px-4 me-2 edit-btn" data-plan-id="${plan.id}" data-bs-toggle="modal" data-bs-target="#editPlanModal">Editar</button>
-                                                     <button class="btn btn-outline-danger delete-btn" data-plan-id="${plan.id}">Eliminar</button>` :
+                                                    <button class="btn btn-outline-danger delete-btn" data-plan-id="${plan.id}">Eliminar</button>` :
                                                     `<button class="btn btn-outline-success score-btn" data-plan-id="${plan.id}" data-bs-toggle="modal" data-bs-target="#scoreModal">Puntuar</button>`
                                                 }
                                             </div>
