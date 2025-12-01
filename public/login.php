@@ -72,16 +72,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" name="password" id="password" required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="password" id="password" required>
+                                    <span class="input-group-text p-0" id="togglePassword">
+                                        <img src="./assets/images/esconder.png" alt="Toggle Password" id="eyeIcon" style="width: 24px; height: 24px;">
+                                    </span>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-                        </form>
 
+
+                            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <small>¿No tienes una cuenta? <a href="./register.php" class="text-decoration-none">Registrarse</a></small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
+
+    <!-- Script para mostrar/ocultar contraseña -->
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const eyeIcon = document.querySelector('#eyeIcon');
+
+        togglePassword.addEventListener('click', () => {
+            const isPassword = password.type === 'password';
+            password.type = isPassword ? 'text' : 'password';
+            eyeIcon.src = isPassword ? './assets/images/ojo.png' : './assets/images/esconder.png';
+        });
+    </script>
 </body>
 
 </html>

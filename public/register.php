@@ -7,48 +7,48 @@ $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // 1. Recibir datos
-    $name = trim($_POST["name"]);
-    $email = trim($_POST["email"]);
-    $password = trim($_POST["password"]);
-    $confirm = trim($_POST["confirm"]);
-    $avatar = trim($_POST["avatar"] ?? ""); // URL del avatar seleccionado
+  // 1. Recibir datos
+  $name = trim($_POST["name"]);
+  $email = trim($_POST["email"]);
+  $password = trim($_POST["password"]);
+  $confirm = trim($_POST["confirm"]);
+  $avatar = trim($_POST["avatar"] ?? ""); // URL del avatar seleccionado
 
-    // 2. Validaciones
-    if (empty($name) || empty($email) || empty($password) || empty($confirm) || empty($avatar)) {
-        $errors[] = "Todos los campos son obligatorios, incluyendo la selección de avatar.";
-    }
+  // 2. Validaciones
+  if (empty($name) || empty($email) || empty($password) || empty($confirm) || empty($avatar)) {
+    $errors[] = "Todos los campos son obligatorios, incluyendo la selección de avatar.";
+  }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "El email no es válido.";
-    }
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = "El email no es válido.";
+  }
 
-    if ($password !== $confirm) {
-        $errors[] = "Las contraseñas no coinciden.";
-    }
+  if ($password !== $confirm) {
+    $errors[] = "Las contraseñas no coinciden.";
+  }
 
-    if (strlen($password) < 6) {
-        $errors[] = "La contraseña debe tener al menos 6 caracteres.";
-    }
+  if (strlen($password) < 6) {
+    $errors[] = "La contraseña debe tener al menos 6 caracteres.";
+  }
 
-    // 3. Verificar si el email ya existe
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->execute([$email]);
+  // 3. Verificar si el email ya existe
+  $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+  $stmt->execute([$email]);
 
-    if ($stmt->fetch()) {
-        $errors[] = "Este correo ya está registrado.";
-    }
+  if ($stmt->fetch()) {
+    $errors[] = "Este correo ya está registrado.";
+  }
 
-    // 4. Si no hay errores → guardar en la BD
-    if (empty($errors)) {
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+  // 4. Si no hay errores → guardar en la BD
+  if (empty($errors)) {
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        $insert = $pdo->prepare("INSERT INTO users (name, email, password_hash, profile_image) VALUES (?, ?, ?, ?)");
-        $insert->execute([$name, $email, $passwordHash, $avatar]);
+    $insert = $pdo->prepare("INSERT INTO users (name, email, password_hash, profile_image) VALUES (?, ?, ?, ?)");
+    $insert->execute([$name, $email, $passwordHash, $avatar]);
 
-        header("Location: login.php?registered=1");
-        exit;
-    }
+    header("Location: login.php?registered=1");
+    exit;
+  }
 }
 ?>
 
@@ -116,25 +116,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <form method="POST" action="">
               <div class="mb-3">
                 <label for="name" class="form-label">Nombre completo</label>
-                <input type="text" class="form-control" id="name" name="name" required 
+                <input type="text" class="form-control" id="name" name="name" required
                   value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
               </div>
 
               <div class="mb-3">
                 <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" id="email" name="email" required 
+                <input type="email" class="form-control" id="email" name="email" required
                   value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
               </div>
 
               <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="password" name="password" required>
+                  <span class="input-group-text p-0" id="togglePassword1">
+                    <img src="./assets/images/esconder.png" alt="Toggle Password" id="eyeIcon1" style="width: 24px; height: 24px;">
+                  </span>
+                </div>
               </div>
 
               <div class="mb-3">
                 <label for="confirm" class="form-label">Confirmar contraseña</label>
-                <input type="password" class="form-control" id="confirm" name="confirm" required>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="confirm" name="confirm" required>
+                  <span class="input-group-text p-0" id="togglePassword2">
+                    <img src="./assets/images/esconder.png" alt="Toggle Password" id="eyeIcon2" style="width: 24px; height: 24px;">
+                  </span>
+                </div>
               </div>
+
 
               <!-- Input oculto para guardar la URL del avatar -->
               <input type="hidden" name="avatar" id="avatar" value="">
@@ -176,7 +187,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         document.getElementById('avatar').value = img.src;
       });
     });
+    const togglePassword1 = document.querySelector('#togglePassword1');
+    const password = document.querySelector('#password');
+    const eyeIcon1 = document.querySelector('#eyeIcon1');
+
+    togglePassword1.addEventListener('click', () => {
+      const isPassword = password.type === 'password';
+      password.type = isPassword ? 'text' : 'password';
+      eyeIcon1.src = isPassword ? './assets/images/ojo.png' : './assets/images/esconder.png';
+    });
+
+    const togglePassword2 = document.querySelector('#togglePassword2');
+    const confirm = document.querySelector('#confirm');
+    const eyeIcon2 = document.querySelector('#eyeIcon2');
+
+    togglePassword2.addEventListener('click', () => {
+      const isPassword = confirm.type === 'password';
+      confirm.type = isPassword ? 'text' : 'password';
+      eyeIcon2.src = isPassword ? './assets/images/ojo.png' : './assets/images/esconder.png';
+    });
   </script>
 
 </body>
+
 </html>
