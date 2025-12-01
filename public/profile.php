@@ -1,5 +1,5 @@
 <?php
-// profile.php — versión usando tu base de datos REAL con PDO
+// profile.php — versión optimizada con PDO
 
 // ---------------- CONFIGURACIÓN DB ----------------
 $host = "localhost";
@@ -15,131 +15,126 @@ try {
     die("Error de conexión: " . $e->getMessage());
 }
 
-// -----------------------------------------------------
-// API AJAX: /profile.php?action=list&type=favoritos|publicaciones|guardados
-// -----------------------------------------------------
-if (isset($_GET['action']) && $_GET['action'] === 'list') {
-    header('Content-Type: application/json; charset=utf-8');
+// ---------------- INICIO DE SESIÓN ----------------
+session_start();
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    die(json_encode(['status' => 'error', 'message' => 'Usuario no autenticado']));
+}
 
-    session_start();
-    $userId = $_SESSION['user_id'];
+// ---------------- FUNCIONES ----------------
+function fetchPlans(PDO $pdo, string $type, int $userId): array
+{
+    $baseQuery = "
+        SELECT p.*, 
+                (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
+                EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
+                EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
+    ";
 
-    $type = $_GET['type'] ?? 'favoritos';
-    $data = [];
+    $params = [$userId, $userId, $userId];
 
-    if ($type === 'favoritos') {
-        $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
-                       EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
-                       EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
-                FROM favorites f
-                JOIN plans p ON f.plan_id = p.id
-                WHERE f.user_id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId, $userId, $userId]);
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } elseif ($type === 'publicaciones') {
-        $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
-                       EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
-                       EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
-                FROM plans p
-                WHERE p.created_by = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId, $userId, $userId]);
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } elseif ($type === 'guardados') {
-        $sql = "SELECT p.*, 
-                       (SELECT AVG(rating) FROM reviews WHERE plan_id = p.id) AS rating,
-                       EXISTS(SELECT 1 FROM favorites f2 WHERE f2.user_id = ? AND f2.plan_id = p.id) AS is_favorite,
-                       EXISTS(SELECT 1 FROM saved_plans s2 WHERE s2.user_id = ? AND s2.plan_id = p.id) AS is_saved
-                FROM saved_plans s
-                JOIN plans p ON s.plan_id = p.id
-                WHERE s.user_id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId, $userId, $userId]);
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    switch ($type) {
+        case 'favoritos':
+            $sql = $baseQuery . " FROM favorites f
+                                    JOIN plans p ON f.plan_id = p.id
+                                    WHERE f.user_id = ?";
+            break;
+        case 'publicaciones':
+            $sql = $baseQuery . " FROM plans p WHERE p.created_by = ?";
+            break;
+        case 'guardados':
+            $sql = $baseQuery . " FROM saved_plans s
+                                    JOIN plans p ON s.plan_id = p.id
+                                    WHERE s.user_id = ?";
+            break;
+        default:
+            return [];
     }
 
-    // Convertimos los valores a booleanos para JS
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     foreach ($data as &$plan) {
         $plan['is_favorite'] = (bool)$plan['is_favorite'];
         $plan['is_saved'] = (bool)$plan['is_saved'];
     }
 
-    echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
-    exit;
+    return $data;
 }
 
-
-// ---------------------- CONTADOR DE PLANES CREADOS ----------------------
-if (isset($_GET['action']) && $_GET['action'] === 'count_created') {
-    header('Content-Type: application/json');
-
-    session_start();
-    $userId = $_SESSION['user_id'];
-
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM plans WHERE created_by = ?");
+function simpleCount(PDO $pdo, string $table, string $column, int $userId, string $conditionColumn = null): int
+{
+    $sql = $conditionColumn
+        ? "SELECT COUNT(*) AS total FROM $table WHERE $conditionColumn = ?"
+        : "SELECT COUNT($column) AS total FROM $table WHERE $column = ?";
+    $stmt = $pdo->prepare($sql);
     $stmt->execute([$userId]);
-    $count = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
-    echo json_encode(['status' => 'ok', 'count' => $count]);
-    exit;
+    return (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 
-// ---------------------- EMOCIONES MÁS VIVIDAS ----------------------
-if (isset($_GET['action']) && $_GET['action'] === 'top_moods') {
+// ---------------- API AJAX ----------------
+if (isset($_GET['action'])) {
     header('Content-Type: application/json; charset=utf-8');
 
-    session_start();
-    $userId = $_SESSION['user_id'];
+    switch ($_GET['action']) {
+        case 'list':
+            $type = $_GET['type'] ?? 'favoritos';
+            echo json_encode(['status' => 'ok', 'data' => fetchPlans($pdo, $type, $userId)], JSON_UNESCAPED_UNICODE);
+            break;
 
-    // Contar las emociones más frecuentes desde user_mood_tracker
-    $stmt = $pdo->prepare("
-        SELECT mood, COUNT(*) AS count
-        FROM user_mood_tracker
-        WHERE user_id = ?
-        GROUP BY mood
-        ORDER BY count DESC
-        LIMIT 3
-    ");
-    $stmt->execute([$userId]);
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        case 'count_created':
+            echo json_encode(['status' => 'ok', 'count' => simpleCount($pdo, 'plans', '*', $userId, 'created_by')]);
+            break;
 
-    echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
+        case 'count_completed':
+            $stmt = $pdo->prepare("SELECT COUNT(DISTINCT plan_id) AS total FROM reviews WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            echo json_encode(['status' => 'ok', 'count' => (int)$stmt->fetch(PDO::FETCH_ASSOC)['total']]);
+            break;
+
+        case 'top_moods':
+        case 'mood_stats':
+            $limit = $_GET['action'] === 'top_moods' ? "LIMIT 3" : "";
+            $stmt = $pdo->prepare("
+                SELECT mood, COUNT(*) AS count
+                FROM user_mood_tracker
+                WHERE user_id = ?
+                GROUP BY mood
+                ORDER BY count DESC
+                $limit
+            ");
+            $stmt->execute([$userId]);
+            echo json_encode(['status' => 'ok', 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)], JSON_UNESCAPED_UNICODE);
+            break;
+
+        default:
+            echo json_encode(['status' => 'error', 'message' => 'Acción no válida']);
+    }
     exit;
 }
 
-// ---------------------- ESTADÍSTICAS DE EMOCIONES ----------------------
-if (isset($_GET['action']) && $_GET['action'] === 'mood_stats') {
-    header('Content-Type: application/json; charset=utf-8');
-
-    session_start();
-    $userId = $_SESSION['user_id'];
-
-    // Contamos cuántas veces aparece cada emoción
-    $stmt = $pdo->prepare("
-        SELECT mood, COUNT(*) AS count
-        FROM user_mood_tracker
-        WHERE user_id = ?
-        GROUP BY mood
-    ");
-    $stmt->execute([$userId]);
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode(['status' => 'ok', 'data' => $data], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-
-
-// ---------------------- DATOS DE USUARIO ----------------------
-session_start();
-$userId = $_SESSION['user_id'];
+// ---------------- DATOS DE USUARIO ----------------
 $stmt = $pdo->prepare("SELECT name, profile_image, banner, bio, points FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// ---------------- PLAN MEJOR VALORADO ----------------
+$stmt = $pdo->prepare("
+    SELECT p.title, AVG(r.rating) AS avg_rating
+    FROM plans p
+    LEFT JOIN reviews r ON p.id = r.plan_id
+    WHERE p.created_by = ?
+    GROUP BY p.id
+    ORDER BY avg_rating DESC
+    LIMIT 1
+");
+$stmt->execute([$userId]);
+$bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -392,16 +387,19 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="stats-card">
-                        <h4>5</h4>
-                        <p>Destinos favoritos</p>
+                        <h4 id="completed-plans-count">0</h4>
+                        <p>Planes realizados</p>
                     </div>
                 </div>
+
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="stats-card">
-                        <h4>3</h4>
-                        <p>Puntos</p>
+                        <h4><?= htmlspecialchars($bestPlan['title'] ?? '—') ?> (<?= round($bestPlan['avg_rating'] ?? 0, 1) ?>★)</h4>
+
+                        <p>Plan mejor valorado</p>
                     </div>
                 </div>
+
             </div>
             <div class="row mt-5">
                 <div class="col-12 col-xs-12 col-sm-12 col-md-6 col-lg-6  d-flex justify-content-center">
@@ -794,18 +792,46 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
                     loadCards(t.dataset.type);
                 });
             });
+            // --------------------
+            // PLANES REALIZADOS
+            // --------------------
+            async function updateCompletedPlansCount() {
+                try {
+                    const res = await fetch('profile.php?action=count_completed', {
+                        credentials: 'same-origin'
+                    });
+                    if (!res.ok) return;
+                    const json = await res.json();
+                    if (json.status !== 'ok') return;
+
+                    const el = document.getElementById('completed-plans-count');
+                    if (el) el.textContent = json.count;
+                } catch (err) {
+                    console.error('Error al actualizar planes realizados:', err);
+                }
+            }
+
 
             // --------------------
             // INICIALIZACIÓN
             // --------------------
             document.addEventListener('DOMContentLoaded', () => {
+                // Cargar cards iniciales
                 loadCards('favoritos');
+
+                // Cargar estadísticas iniciales
                 updateCreatedPlansCount();
+                updateCompletedPlansCount();
                 updateTopMoods();
-                loadMoodStats(); // <-- carga inicial de gráficos
-                setInterval(updateCreatedPlansCount, 10000);
-                setInterval(updateTopMoods, 10000);
-                setInterval(loadMoodStats, 10000); // refresco cada 10s
+                loadMoodStats();
+
+                // Refrescar cada 10s
+                setInterval(() => {
+                    updateCreatedPlansCount();
+                    updateCompletedPlansCount();
+                    updateTopMoods();
+                    loadMoodStats();
+                }, 10000);
             });
         </script>
 
