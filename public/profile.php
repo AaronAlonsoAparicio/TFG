@@ -329,44 +329,44 @@ $bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
     </div>
 
     <!-- Modal -->
-   <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header-profile">
-        <h5 class="modal-title-profile" id="editProfileModalLabel">Editar perfil</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body-profile">
-        <form id="editProfileForm" enctype="multipart/form-data">
-          <div class="mb-3">
-            <label for="bannerInput" class="form-label">Banner</label>
-            <input type="file" name="banner" id="bannerInput" class="form-control" accept="image/*">
-            <div class="mt-3">
-              <img src="<?= htmlspecialchars($user['banner'] ?? '') ?>" id="bannerPreview" style="width:100%; max-height:200px; object-fit:cover;">
-            </div>
-          </div>
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header-profile">
+                    <h5 class="modal-title-profile" id="editProfileModalLabel">Editar perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body-profile">
+                    <form id="editProfileForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="bannerInput" class="form-label">Banner</label>
+                            <input type="file" name="banner" id="bannerInput" class="form-control" accept="image/*">
+                            <div class="mt-3">
+                                <img src="<?= htmlspecialchars($user['banner'] ?? '') ?>" id="bannerPreview" style="width:100%; max-height:200px; object-fit:cover;">
+                            </div>
+                        </div>
 
-          <div class="mb-3">
-            <label for="avatarInput" class="form-label">Foto de perfil</label>
-            <input type="file" name="avatar" id="avatarInput" class="form-control" accept="image/*">
-            <div class="mt-3">
-              <img src="<?= htmlspecialchars($user['profile_image'] ?? '') ?>" id="avatarPreview" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #6d28d9;">
-            </div>
-          </div>
+                        <div class="mb-3">
+                            <label for="avatarInput" class="form-label">Foto de perfil</label>
+                            <input type="file" name="avatar" id="avatarInput" class="form-control" accept="image/*">
+                            <div class="mt-3">
+                                <img src="<?= htmlspecialchars($user['profile_image'] ?? '') ?>" id="avatarPreview" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #6d28d9;">
+                            </div>
+                        </div>
 
-          <div class="mb-3">
-            <label for="bioInput" class="form-label">Descripción</label>
-            <textarea name="bio" id="bioInput" class="form-control" rows="3"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer-profile">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary" onclick="guardarPerfil()">Guardar cambios</button>
-      </div>
+                        <div class="mb-3">
+                            <label for="bioInput" class="form-label">Descripción</label>
+                            <textarea name="bio" id="bioInput" class="form-control" rows="3"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer-profile">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" onclick="guardarPerfil()">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
     <main class="container mt-5 pt-5">
 
@@ -814,44 +814,44 @@ $bestPlan = $stmt->fetch(PDO::FETCH_ASSOC);
             }
 
             async function guardarPerfil() {
-    const form = document.getElementById('editProfileForm');
-    const formData = new FormData(form);
+                const form = document.getElementById('editProfileForm');
+                const formData = new FormData(form);
 
-    try {
-        const res = await fetch('edit_profile.php', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        });
+                try {
+                    const res = await fetch('edit_profile.php', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    });
 
-        const json = await res.json();
+                    const json = await res.json();
 
-        if (json.status === 'ok') {
-            alert('Perfil actualizado correctamente');
+                    if (json.status === 'ok') {
+                        alert('Perfil actualizado correctamente');
 
-            // Actualizar imágenes del perfil en la página sin recargar
-            const avatarFile = form.avatar.files[0];
-            if (avatarFile) {
-                document.querySelector('.profile-overlay img').src = URL.createObjectURL(avatarFile);
+                        // Actualizar imágenes del perfil en la página sin recargar
+                        const avatarFile = form.avatar.files[0];
+                        if (avatarFile) {
+                            document.querySelector('.profile-overlay img').src = URL.createObjectURL(avatarFile);
+                        }
+                        const bannerFile = form.banner.files[0];
+                        if (bannerFile) {
+                            const bannerPreview = document.getElementById('bannerPreview');
+                            if (bannerPreview) bannerPreview.src = URL.createObjectURL(bannerFile);
+                        }
+
+                        // Cerrar modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                        modal.hide();
+
+                    } else {
+                        alert('Error: ' + json.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error al actualizar el perfil');
+                }
             }
-            const bannerFile = form.banner.files[0];
-            if (bannerFile) {
-                const bannerPreview = document.getElementById('bannerPreview');
-                if (bannerPreview) bannerPreview.src = URL.createObjectURL(bannerFile);
-            }
-
-            // Cerrar modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-            modal.hide();
-
-        } else {
-            alert('Error: ' + json.message);
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Error al actualizar el perfil');
-    }
-}
 
 
 

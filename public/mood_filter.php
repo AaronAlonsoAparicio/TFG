@@ -361,18 +361,51 @@
                     });
                 });
 
-                // Estrellas interactivas
+                // Manejo de clic en estrellas
                 document.querySelectorAll('#star-container .star').forEach(star => {
-                    star.addEventListener('mouseover', e => {
-                        const val = parseInt(star.dataset.value);
+                    star.addEventListener('click', function() {
+                        const value = parseInt(this.dataset.value);
+                        document.getElementById('selected-rating').value = value;
+
+                        // Pintar estrellas hasta el valor seleccionado
                         document.querySelectorAll('#star-container .star').forEach(s => {
-                            s.classList.toggle('bi-star-fill', parseInt(s.dataset.value) <= val);
-                            s.classList.toggle('bi-star', parseInt(s.dataset.value) > val);
+                            const v = parseInt(s.dataset.value);
+                            if (v <= value) {
+                                s.classList.remove('bi-star');
+                                s.classList.add('bi-star-fill', 'text-warning');
+                            } else {
+                                s.classList.remove('bi-star-fill', 'text-warning');
+                                s.classList.add('bi-star');
+                            }
                         });
                     });
-                    star.addEventListener('click', e => {
-                        document.getElementById('selected-rating').value = star.dataset.value;
-                    });
+                });
+
+                // Enviar puntuación
+                document.getElementById('submitRating').addEventListener('click', function() {
+                    const rating = document.getElementById('selected-rating').value;
+                    if (rating == 0) {
+                        alert('Por favor selecciona una puntuación.');
+                        return;
+                    }
+
+                    fetch('../src/submit_rating.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: `plan_id=${currentPlanId}&rating=${rating}`
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Puntuación enviada!');
+                                location.reload(); // refresca la página para actualizar el rating
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(err => console.error(err));
                 });
             }
 
