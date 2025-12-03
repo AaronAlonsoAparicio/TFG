@@ -51,15 +51,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!file_exists($carpetaDestino)) {
         mkdir($carpetaDestino, 0777, true);
     }
+$nombreNuevo = uniqid("plan_") . "_" . basename($nombreOriginal);
+$rutaFinal = $carpetaDestino . $nombreNuevo;
 
-    $nombreNuevo = uniqid("plan_") . "_" . basename($nombreOriginal);
-    $rutaFinal = $carpetaDestino . $nombreNuevo;
+if (move_uploaded_file($nombreTmp, $rutaFinal)) {
+    // RUTA PARA EL SERVIDOR: OK
+    // PERO GUARDAMOS SOLO LA RUTA WEB PARA LA BD
+    $rutaImagen = "/assets/images/" . $nombreNuevo;
+} else {
+    $mensaje = "Error al subir la imagen";
+}
 
-    if (move_uploaded_file($nombreTmp, $rutaFinal)) {
-        $rutaImagen = $rutaFinal;
-    } else {
-        $mensaje = "Error al subir la imagen";
-    }
 
     if ($mensaje === "") {
         $sql = "INSERT INTO plans (title, description, category, direccion, lat, lng, image, created_by)
